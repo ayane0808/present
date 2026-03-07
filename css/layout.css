@@ -1,0 +1,76 @@
+/* ============================================================
+   HEADER & NAVIGATION
+============================================================ */
+#header {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 200;
+  background: var(--nav-bg); backdrop-filter: blur(24px);
+  border-bottom: 2px solid var(--light-border); box-shadow: 0 2px 20px rgba(255, 107, 138, 0.08);
+}
+.header-inner {
+  max-width: 1280px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between;
+  padding: 0 24px; height: 66px;
+}
+.logo { display: flex; align-items: center; gap: 10px; cursor: pointer; user-select: none; }
+.logo-icon { font-size: 30px; line-height: 1; }
+.logo-texts { display: flex; flex-direction: column; }
+.logo-text {
+  font-family: 'Zen Maru Gothic', sans-serif; font-size: 20px; font-weight: 900; line-height: 1;
+  background: linear-gradient(135deg, var(--sakura), var(--kogane));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; letter-spacing: 0.02em;
+}
+.logo-tagline { font-size: 10px; color: var(--sumi2); font-weight: 500; letter-spacing: 0.06em; margin-top: 2px; }
+
+/* Desktop nav */
+.nav-links { display: flex; align-items: center; gap: 2px; }
+.nav-link {
+  display: flex; flex-direction: column; align-items: center; gap: 3px;
+  padding: 8px 20px; border-radius: 14px; background: none; color: var(--sumi2); transition: all 0.2s;
+}
+.nav-link:hover { background: rgba(255, 107, 138, 0.07); color: var(--sakura); }
+.nav-link.active { background: linear-gradient(135deg, rgba(255, 107, 138, 0.11), rgba(244, 164, 53, 0.07)); color: var(--sakura); }
+.nl-icon { font-size: 20px; line-height: 1; }
+.nl-label { font-size: 11px; font-weight: 700; letter-spacing: 0.03em; }
+
+/* Hamburger & Drawer */
+#hamburger {
+  display: none; flex-direction: column; justify-content: center; gap: 5px;
+  width: 42px; height: 42px; border: none; background: none; cursor: pointer; border-radius: 12px; padding: 9px; transition: background 0.2s;
+}
+#hamburger:hover { background: rgba(255, 107, 138, 0.09); }
+#hamburger span { display: block; height: 2px; border-radius: 2px; background: var(--sumi); transition: all 0.3s; }
+#hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); background: var(--sakura); }
+#hamburger.open span:nth-child(2) { opacity: 0; transform: scaleX(0); }
+#hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); background: var(--sakura); }
+
+#mobile-drawer {
+  display: none; position: fixed; top: 66px; left: 0; right: 0; bottom: 0;
+  background: rgba(255, 248, 242, 0.98); backdrop-filter: blur(20px); z-index: 190;
+  padding: 20px 16px; flex-direction: column; gap: 6px; border-top: 1px solid var(--light-border);
+  animation: slideDown 0.25s ease;
+}
+#mobile-drawer.open { display: flex; }
+@keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+.drawer-link {
+  display: flex; align-items: center; gap: 14px; padding: 16px 18px; border-radius: 18px;
+  color: var(--sumi); font-size: 16px; font-weight: 700; transition: all 0.2s;
+}
+.drawer-link:hover { background: rgba(255, 107, 138, 0.08); color: var(--sakura); }
+.drawer-link.active { background: linear-gradient(135deg, rgba(255, 107, 138, 0.11), rgba(244, 164, 53, 0.07)); color: var(--sakura); }
+.dl-icon { font-size: 24px; }
+.drawer-divider { height: 1px; background: var(--light-border); margin: 6px 0; }
+
+/* ============================================================
+   APP LAYOUT
+============================================================ */
+#app { max-width: 1280px; margin: 0 auto; padding-top: 66px; min-height: 100vh; position: relative; z-index: 1; }
+.content-wrap { padding: 36px 32px; }
+
+@media (max-width: 768px) {
+  .nav-links { display: none; }
+  #hamburger { display: flex; }
+  .content-wrap { padding: 22px 16px; }
+}
+@media (min-width: 769px) {
+  #hamburger { display: none; }
+  #mobile-drawer { display: none !important; }
+}

@@ -1,0 +1,48 @@
+/* ============================================================
+   RESET & ROOT
+============================================================ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+:root {
+  --sakura: #ff6b8a; --sakura2: #ff9aaf; --washi: #fff8f0; --ume: #f7c5d0;
+  --matcha: #5bad8f; --kogane: #f4a435; --kogane2: #ffd580; --nishiki: #a882c5;
+  --sumi: #2d2926; --sumi2: #6b5b52; --light-border: rgba(255, 107, 138, 0.18);
+  --page-bg: #fff8f2; --nav-bg: rgba(255, 255, 255, 0.97);
+  --shadow-sm: 0 2px 12px rgba(255, 107, 138, 0.1); --shadow-md: 0 6px 28px rgba(255, 107, 138, 0.15);
+}
+
+body {
+  min-height: 100vh;
+  background-color: var(--page-bg);
+  background-image:
+    radial-gradient(circle at 8% 15%, rgba(255, 107, 138, 0.07) 0%, transparent 42%),
+    radial-gradient(circle at 92% 55%, rgba(244, 164, 53, 0.08) 0%, transparent 38%),
+    radial-gradient(circle at 48% 88%, rgba(91, 173, 143, 0.06) 0%, transparent 38%);
+  background-attachment: fixed;
+  color: var(--sumi);
+  font-family: 'Noto Sans JP', 'Hiragino Kaku Gothic Pro', sans-serif;
+  overflow-x: hidden;
+}
+
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: var(--washi); }
+::-webkit-scrollbar-thumb { background: var(--ume); border-radius: 3px; }
+
+body::before {
+  content: ''; position: fixed; inset: 0; pointer-events: none; z-index: 0;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Ctext x='8' y='35' font-size='18' opacity='0.025'%3E🌸%3C/text%3E%3Ctext x='70' y='90' font-size='14' opacity='0.02'%3E✿%3C/text%3E%3C/svg%3E");
+}
+a { text-decoration: none; }
+
+/* TOAST (全画面共通の通知) */
+#toast {
+  position: fixed; top: 82px; left: 50%; transform: translateX(-50%);
+  padding: 13px 28px; border-radius: 50px; z-index: 999;
+  font-weight: 700; font-size: 14px; color: #fff;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.12); display: none; white-space: nowrap;
+  animation: toastPop 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+@keyframes toastPop {
+  from { opacity: 0; transform: translate(-50%, -14px) scale(0.88); }
+  to { opacity: 1; transform: translate(-50%, 0) scale(1); }
+}
