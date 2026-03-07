@@ -113,6 +113,7 @@ window.handleChatSend = async function () {
   const input = document.getElementById('chat-input');
   const userMsg = input.value.trim();
   if (!userMsg || aiLoading) return;
+  
   input.value = '';
   chatMessages.push({ role: 'user', text: userMsg });
   aiLoading = true;
@@ -127,16 +128,54 @@ window.handleChatSend = async function () {
   box.appendChild(td);
   box.scrollTop = box.scrollHeight;
 
-  // 簡易モック返答（本来はAPIリクエスト）
-  setTimeout(() => {
+  try {
+    const apiKey = 'AIzaSyAPtu6XgzisQ3jqFD1Ea-7QUlL0JVYLFSU';
+    const response = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent?key=${apiKey}`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          contents: [
+            {
+              parts: [
+                {
+                  text: `あなたはプレゼント選びのアドバイザーです。ユーザーの要望に基づいて、適切なプレゼントのアドバイスを日本語で行ってください。\n\nユーザーからの相談：「${userMsg}」\n\nアドバイスは簡潔に（100字程度）、具体的なプレゼント提案を含めてください。`,
+                },
+              ],
+            },
+          ],
+        }),
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error(`API error: ${response.status}`);
+    }
+
+    const result = await response.json();
+    const aiText =
+      result.candidates?.[0]?.content?.parts?.[0]?.text ||
+      '申し訳ありません。返答を生成できませんでした。';
+
     chatMessages.push({
       role: 'ai',
-      text: `「${userMsg}」ですね！\n\nおすすめは...`,
+      text: aiText,
     });
+  } catch (error) {
+    console.error('Chat API error:', error);
+    chatMessages.push({
+      role: 'ai',
+      text: `申し訳ありません。エラーが発生しました：${error.message}`,
+    });
+    showToast('AIとの通信に失敗しました', 'error');
+  } finally {
     aiLoading = false;
     document.getElementById('chat-send-btn').disabled = false;
     renderChat();
-  }, 1000);
+  }
 };
 
 document.addEventListener('DOMContentLoaded', refreshSearchChips);
