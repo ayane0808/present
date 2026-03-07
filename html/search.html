@@ -7,6 +7,8 @@
       content="width=device-width, initial-scale=1.0, maximum-scale=1.0"
     />
     <title>探す - GiftFinder</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&family=Zen+Maru+Gothic:wght@700;900&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="../css/base.css" />
     <link rel="stylesheet" href="../css/layout.css" />
     <link rel="stylesheet" href="../css/components.css" />
@@ -17,12 +19,13 @@
 
     <header id="header">
       <div class="header-inner">
-        <a href="index.html" class="logo"
-          ><span class="logo-icon">🎁</span>
+        <a href="index.html" class="logo">
+          <span class="logo-icon">🎁</span>
           <div class="logo-texts">
             <span class="logo-text">GiftFinder</span>
-          </div></a
-        >
+            <span class="logo-tagline">心を贈る、最高の一品を</span>
+          </div>
+        </a>
         <nav class="nav-links">
           <a href="index.html" class="nav-link" data-page="home"
             ><span class="nl-icon">🏠</span
@@ -46,6 +49,23 @@
         </button>
       </div>
     </header>
+
+    <div id="mobile-drawer">
+      <a href="index.html" class="drawer-link" data-page="home"
+        ><span class="dl-icon">🏠</span>ホーム</a
+      >
+      <a href="search.html" class="drawer-link" data-page="search"
+        ><span class="dl-icon">🔍</span>プレゼントを探す</a
+      >
+      <div class="drawer-divider"></div>
+      <a href="post.html" class="drawer-link" data-page="post"
+        ><span class="dl-icon">✍️</span>口コミを投稿</a
+      >
+      <a href="auth.html" class="drawer-link" data-page="auth"
+        ><span class="dl-icon">👤</span>アカウント</a
+      >
+    </div>
+
     <div id="app">
       <div class="search-layout">
         <div>

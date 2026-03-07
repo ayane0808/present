@@ -2,7 +2,13 @@
 <html lang="ja">
   <head>
     <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0"
+    />
     <title>アカウント - GiftFinder</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&family=Zen+Maru+Gothic:wght@700;900&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="../css/base.css" />
     <link rel="stylesheet" href="../css/layout.css" />
     <link rel="stylesheet" href="../css/components.css" />
@@ -10,6 +16,55 @@
   </head>
   <body>
     <div id="toast"></div>
+    <header id="header">
+      <div class="header-inner">
+        <a href="index.html" class="logo">
+          <span class="logo-icon">🎁</span>
+          <div class="logo-texts">
+            <span class="logo-text">GiftFinder</span>
+            <span class="logo-tagline">心を贈る、最高の一品を</span>
+          </div>
+        </a>
+        <nav class="nav-links">
+          <a href="index.html" class="nav-link" data-page="home"
+            ><span class="nl-icon">🏠</span
+            ><span class="nl-label">ホーム</span></a
+          >
+          <a href="search.html" class="nav-link" data-page="search"
+            ><span class="nl-icon">🔍</span
+            ><span class="nl-label">探す</span></a
+          >
+          <a href="post.html" class="nav-link" data-page="post"
+            ><span class="nl-icon">✍️</span
+            ><span class="nl-label">投稿</span></a
+          >
+          <a href="auth.html" class="nav-link" data-page="auth"
+            ><span class="nl-icon">👤</span
+            ><span class="nl-label">アカウント</span></a
+          >
+        </nav>
+        <button id="hamburger" onclick="toggleDrawer()">
+          <span></span><span></span><span></span>
+        </button>
+      </div>
+    </header>
+
+    <div id="mobile-drawer">
+      <a href="index.html" class="drawer-link" data-page="home"
+        ><span class="dl-icon">🏠</span>ホーム</a
+      >
+      <a href="search.html" class="drawer-link" data-page="search"
+        ><span class="dl-icon">🔍</span>プレゼントを探す</a
+      >
+      <div class="drawer-divider"></div>
+      <a href="post.html" class="drawer-link" data-page="post"
+        ><span class="dl-icon">✍️</span>口コミを投稿</a
+      >
+      <a href="auth.html" class="drawer-link" data-page="auth"
+        ><span class="dl-icon">👤</span>アカウント</a
+      >
+    </div>
+
     <div id="app">
       <div class="content-wrap">
         <div class="account-wrap">
