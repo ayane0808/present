@@ -1,0 +1,91 @@
+/* ============================================================
+   PAGE SPECIFIC (Home)
+============================================================ */
+.home-hero {
+  background: linear-gradient(135deg, #fff0f5 0%, #fff8ec 55%, #f0fbf6 100%);
+  padding: 64px 32px 52px; text-align: center; border-bottom: 2px solid rgba(255, 107, 138, 0.08); position: relative; overflow: hidden;
+}
+.home-hero::before { content: '🌸'; position: absolute; font-size: 160px; opacity: 0.12; top: -30px; left: -40px; transform: rotate(-18deg); pointer-events: none; }
+.home-hero::after { content: '🎁'; position: absolute; font-size: 130px; opacity: 0.12; bottom: -15px; right: -25px; transform: rotate(12deg); pointer-events: none; }
+
+.hero-badge { display: inline-block; background: linear-gradient(135deg, rgba(255, 107, 138, 0.1), rgba(244, 164, 53, 0.08)); border: 1px solid rgba(255, 107, 138, 0.2); border-radius: 50px; padding: 5px 18px; font-size: 12px; font-weight: 700; color: var(--sakura); margin-bottom: 18px; letter-spacing: 0.07em; }
+.home-title { font-family: 'Zen Maru Gothic', sans-serif; font-size: clamp(26px, 4.5vw, 48px); font-weight: 900; line-height: 1.2; margin: 0 0 14px; background: linear-gradient(135deg, var(--sakura) 20%, var(--kogane) 80%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+.home-sub { color: var(--sumi2); font-size: 15px; line-height: 1.75; max-width: 500px; margin: 0 auto 6px; }
+.home-greeting { display: inline-block; margin-top: 14px; font-size: 14px; color: var(--matcha); font-weight: 600; background: rgba(91, 173, 143, 0.09); border: 1px solid rgba(91, 173, 143, 0.22); padding: 6px 18px; border-radius: 50px; }
+.hero-actions { display: flex; gap: 12px; justify-content: center; margin-top: 28px; flex-wrap: wrap; }
+
+.season-banner { background: linear-gradient(135deg, #fff3e8, #ffe6ee); border: 1.5px solid rgba(255, 107, 138, 0.18); border-radius: 16px; padding: 14px 22px; margin: 24px 32px 0; display: flex; align-items: center; gap: 12px; font-size: 14px; font-weight: 500; }
+.season-banner .sb-icon { font-size: 24px; flex-shrink: 0; }
+.season-banner strong { color: var(--sakura); }
+
+.home-section { padding: 32px 32px 44px; }
+.section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 22px; padding-bottom: 14px; border-bottom: 2px solid rgba(255, 107, 138, 0.09); }
+.section-header-title { font-family: 'Zen Maru Gothic', sans-serif; font-size: 19px; font-weight: 900; display: flex; align-items: center; gap: 8px; }
+.section-header-count { font-size: 12px; color: var(--sumi2); background: rgba(255, 107, 138, 0.07); border: 1px solid rgba(255, 107, 138, 0.14); padding: 3px 12px; border-radius: 50px; font-weight: 600; }
+
+@media (max-width: 768px) {
+  .home-hero { padding: 44px 16px 38px; }
+  .hero-actions .btn-primary, .hero-actions .btn-matcha { width: 100%; }
+  .season-banner { margin: 16px 16px 0; }
+  .home-section { padding: 24px 16px 36px; }
+}
+
+/* ============================================================
+   PAGE SPECIFIC (Search)
+============================================================ */
+.search-layout { display: grid; gap: 24px; padding: 32px; align-items: start; }
+@media (min-width: 900px) { .search-layout { grid-template-columns: 320px 1fr; } }
+@media (max-width: 768px) { .search-layout { padding: 18px 16px; } }
+
+.search-panel { background: #fff; border-radius: 22px; border: 1.5px solid rgba(255, 107, 138, 0.1); box-shadow: var(--shadow-sm); padding: 24px; position: sticky; top: 86px; }
+.search-panel-title { font-family: 'Zen Maru Gothic', sans-serif; font-size: 17px; font-weight: 900; margin-bottom: 18px; display: flex; align-items: center; gap: 8px; padding-bottom: 14px; border-bottom: 2px solid rgba(255, 107, 138, 0.09); }
+.mode-tabs { display: flex; gap: 6px; margin-bottom: 20px; }
+.mode-tab { flex: 1; padding: 9px; border-radius: 12px; font-weight: 700; cursor: pointer; font-size: 13px; border: 2px solid rgba(255, 107, 138, 0.16); background: rgba(255, 107, 138, 0.03); color: var(--sumi2); }
+.mode-tab.active { background: linear-gradient(135deg, rgba(255, 107, 138, 0.11), rgba(244, 164, 53, 0.07)); border-color: var(--sakura); color: var(--sakura); }
+
+.filter-label { font-size: 11px; font-weight: 700; color: var(--sumi2); margin-bottom: 8px; letter-spacing: 0.05em; }
+.filter-section { margin-bottom: 18px; }
+
+.results-panel-title { font-family: 'Zen Maru Gothic', sans-serif; font-size: 19px; font-weight: 900; display: flex; align-items: center; gap: 8px; margin-bottom: 20px; padding-bottom: 14px; border-bottom: 2px solid rgba(255, 107, 138, 0.09); }
+.results-count-badge { background: linear-gradient(135deg, rgba(255, 107, 138, 0.09), rgba(244, 164, 53, 0.07)); border: 1px solid rgba(255, 107, 138, 0.18); color: var(--sakura); font-weight: 700; padding: 3px 14px; border-radius: 50px; font-size: 13px; }
+
+.empty-state { text-align: center; padding: 72px 20px; color: var(--sumi2); background: #fff; border-radius: 22px; border: 1.5px solid rgba(255, 107, 138, 0.09); }
+.empty-state .es-icon { font-size: 58px; margin-bottom: 16px; }
+.empty-state .es-title { font-family: 'Zen Maru Gothic', sans-serif; font-size: 18px; font-weight: 900; margin-bottom: 10px; color: var(--sumi); }
+
+/* Chat */
+.chat-box { background: #fff8f2; border-radius: 14px; padding: 14px; height: 320px; overflow-y: auto; margin-bottom: 12px; border: 1.5px solid rgba(255, 107, 138, 0.1); }
+.chat-msg { margin-bottom: 12px; display: flex; }
+.chat-msg.user { justify-content: flex-end; }
+.chat-bubble { max-width: 80%; padding: 10px 14px; font-size: 13px; line-height: 1.65; white-space: pre-line; }
+.chat-bubble.ai { border-radius: 4px 16px 16px 16px; background: #fff; border: 1.5px solid rgba(255, 107, 138, 0.1); box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04); }
+.chat-bubble.user { border-radius: 16px 4px 16px 16px; background: linear-gradient(135deg, var(--sakura), var(--kogane)); color: #fff; }
+.chat-input-row { display: flex; gap: 8px; }
+.chat-send { background: linear-gradient(135deg, var(--sakura), var(--kogane)); border: none; border-radius: 50px; padding: 0 20px; color: #fff; font-size: 18px; cursor: pointer; }
+
+/* ============================================================
+   PAGE SPECIFIC (Post)
+============================================================ */
+.post-wrap { max-width: 700px; margin: 0 auto; }
+.post-warn { background: rgba(255, 107, 138, 0.06); border: 1.5px solid rgba(255, 107, 138, 0.22); border-radius: 14px; padding: 12px 16px; margin-bottom: 20px; font-size: 13px; color: var(--sakura); font-weight: 500; }
+.form-label { font-size: 12px; font-weight: 700; color: var(--sumi2); display: block; margin-bottom: 8px; letter-spacing: 0.04em; }
+.form-group { margin-bottom: 18px; }
+
+/* ============================================================
+   PAGE SPECIFIC (Account)
+============================================================ */
+.account-wrap { max-width: 480px; margin: 0 auto; }
+.profile-card { text-align: center; padding: 36px 24px; background: linear-gradient(135deg, #fff0f5, #fff8ec); border-radius: 24px; margin-bottom: 20px; border: 1.5px solid rgba(255, 107, 138, 0.14); }
+.profile-avatar { font-size: 64px; margin-bottom: 12px; }
+.profile-name { font-family: 'Zen Maru Gothic', sans-serif; font-size: 24px; font-weight: 900; margin: 0 0 6px; }
+.profile-field { background: #fff; border-radius: 16px; padding: 14px 18px; margin-bottom: 12px; border: 1.5px solid rgba(255, 107, 138, 0.09); }
+.profile-field-label { font-size: 11px; color: var(--sumi2); margin-bottom: 3px; font-weight: 700; }
+.profile-field-value { font-size: 15px; font-weight: 700; }
+.btn-logout { width: 100%; padding: 14px; border-radius: 50px; border: 2px solid rgba(255, 107, 138, 0.28); background: rgba(255, 107, 138, 0.04); color: var(--sakura); font-size: 15px; font-weight: 700; cursor: pointer; }
+
+.auth-tabs { display: flex; gap: 6px; margin-bottom: 22px; }
+.auth-tab { flex: 1; padding: 10px; border-radius: 12px; font-weight: 700; cursor: pointer; font-size: 13px; border: 2px solid rgba(255, 107, 138, 0.14); background: rgba(255, 107, 138, 0.03); color: var(--sumi2); }
+.auth-tab.active { border-color: var(--sakura); background: rgba(255, 107, 138, 0.07); color: var(--sakura); }
+.auth-field-label { font-size: 12px; color: var(--sumi2); display: block; margin-bottom: 6px; font-weight: 600; }
+.auth-group { margin-bottom: 14px; }
+.auth-demo { font-size: 12px; color: rgba(45, 41, 38, 0.38); text-align: center; margin-bottom: 16px; padding: 10px; background: var(--washi); border-radius: 10px; }
