@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0"
+    />
+    <title>探す - GiftFinder</title>
+    <link rel="stylesheet" href="../css/style.css" />
+  </head>
+  <body>
+    <div id="toast"></div>
+
+    <header id="header">
+      <div class="header-inner">
+        <a href="index.html" class="logo"
+          ><span class="logo-icon">🎁</span>
+          <div class="logo-texts">
+            <span class="logo-text">GiftFinder</span>
+          </div></a
+        >
+        <nav class="nav-links">
+          <a href="index.html" class="nav-link" data-page="home"
+            ><span class="nl-icon">🏠</span
+            ><span class="nl-label">ホーム</span></a
+          >
+          <a href="search.html" class="nav-link" data-page="search"
+            ><span class="nl-icon">🔍</span
+            ><span class="nl-label">探す</span></a
+          >
+          <a href="post.html" class="nav-link" data-page="post"
+            ><span class="nl-icon">✍️</span
+            ><span class="nl-label">投稿</span></a
+          >
+          <a href="auth.html" class="nav-link" data-page="auth"
+            ><span class="nl-icon">👤</span
+            ><span class="nl-label">アカウント</span></a
+          >
+        </nav>
+        <button id="hamburger" onclick="toggleDrawer()">
+          <span></span><span></span><span></span>
+        </button>
+      </div>
+    </header>
+    <div id="app">
+      <div class="search-layout">
+        <div>
+          <div class="search-panel">
+            <div class="search-panel-title">🔍 絞り込み条件</div>
+            <div class="mode-tabs">
+              <button
+                class="mode-tab active"
+                id="tab-button"
+                onclick="setSearchMode('button')"
+              >
+                🎯 条件選択
+              </button>
+              <button
+                class="mode-tab"
+                id="tab-ai"
+                onclick="setSearchMode('ai')"
+              >
+                🤖 AIに相談
+              </button>
+            </div>
+
+            <div id="search-button-mode">
+              <div class="filter-section">
+                <div class="filter-label">👤 相手の年代</div>
+                <select class="select-field" id="filter-age">
+                  <option value="">指定なし</option>
+                  <option>10代</option>
+                  <option>20代</option>
+                  <option>30代</option>
+                  <option>40代</option>
+                  <option>50代</option>
+                  <option>60代以上</option>
+                </select>
+              </div>
+              <div class="filter-section">
+                <div class="filter-label">♀♂ 相手の性別</div>
+                <select class="select-field" id="filter-gender">
+                  <option value="">指定なし</option>
+                  <option>男性</option>
+                  <option>女性</option>
+                  <option>どちらでも</option>
+                </select>
+              </div>
+              <div class="filter-section">
+                <div class="filter-label">💑 相手との関係</div>
+                <div id="chips-relation" class="chips-wrap"></div>
+              </div>
+              <div class="filter-section">
+                <div class="filter-label">🎉 シーン</div>
+                <div id="chips-scene" class="chips-wrap"></div>
+              </div>
+              <div class="filter-section">
+                <div class="filter-label">🏷 カテゴリ</div>
+                <div id="chips-category" class="chips-wrap"></div>
+              </div>
+
+              <button class="btn-primary full" onclick="handleSearch()">
+                🔍 この条件で探す
+              </button>
+            </div>
+
+            <div id="search-ai-mode" style="display: none">
+              <div class="chat-box" id="chat-box"></div>
+              <div class="chat-input-row">
+                <input
+                  type="text"
+                  class="input-field"
+                  id="chat-input"
+                  placeholder="例：30代女性の友人への誕生日プレゼント"
+                  style="flex: 1"
+                  onkeydown="if (event.key === 'Enter') handleChatSend();"
+                />
+                <button
+                  class="chat-send"
+                  id="chat-send-btn"
+                  onclick="handleChatSend()"
+                >
+                  →
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div id="search-results-area">
+          <div class="empty-state">
+            <div class="es-icon">🌸</div>
+            <div class="es-title">条件を選んで探してみましょう</div>
+            <div class="es-sub">
+              左のパネルで条件を絞り込むか、<br />AIに相談して最適なプレゼントを見つけてください。
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="js/supabase.js"></script>
+    <script src="js/search.js"></script>
+  </body>
+</html>
