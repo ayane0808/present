@@ -40,23 +40,43 @@ export async function getRelations() {
   return data;
 }
 
-// ログイン中ユーザーを取得
-export async function getCurrentUser() {
-  const { data: { user } } = await supab.auth.getUser();
+// 新規登録（usersテーブルに直接insert）
+export async function signUp(id, password, age, gender, name) {
+  const { data, error } = await supab.from('users').insert([{
+    id,
+    password,
+    age: parseInt(age),
+    gender: parseInt(gender),
+    name
+  }]);
+  if (error) { console.error('登録エラー:', error.message); return null; }
+
+  const user = { id, age: parseInt(age), gender: parseInt(gender), name };
+  localStorage.setItem('gf_user', JSON.stringify(user)); // ← ログイン状態にする
   return user;
 }
 
-// ログイン
-export async function signIn(email, password) {
-  const { data, error } = await supab.auth.signInWithPassword({ email, password });
-  if (error) { console.error(error); return null; }
-  return data.user;
+// getCurrentUser → localStorageから取得に変更
+export function getCurrentUser() {
+  const user = localStorage.getItem('gf_user');
+  return user ? JSON.parse(user) : null;
 }
 
-// ログアウト
-export async function signOut() {
-  const {error} = await supab.auth.signOut();
-  if (error) console.error(error);
+// signOut → localStorageを削除
+export function signOut() {
+  localStorage.removeItem('gf_user');
+}
+
+// signIn成功後にlocalStorageに保存するよう変更
+export async function signIn(id, password) {
+  const { data, error } = await supab.from('users')
+      .select('*')
+      .eq('id', id)
+      .eq('password', password)
+      .single();
+  if (error || !data) { console.error('ログインエラー'); return null; }
+  localStorage.setItem('gf_user', JSON.stringify(data)); // ← 追加
+  return data;
 }
 
 // APIキーを取得
@@ -68,3 +88,4 @@ export async function getApiKey(name) {
   }
   return data?.key || null;
 }
+
