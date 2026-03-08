@@ -1,21 +1,31 @@
-export const RELATION_ICONS = { '恋人': '💕', '友人': '🤝', '父': '👨', '母': '👩', '兄弟・姉妹': '👫', '先輩・上司': '🧑🏻‍💼','同僚': '💼', '子ども': '🧒🏻','祖父母': '👴🏻','夫婦': '💑', 'その他': '✨'};
+export const RELATION_ICONS = {
+  恋人: '💕',
+  友人: '🤝',
+  父: '👨',
+  母: '👩',
+  '兄弟・姉妹': '👫',
+  '先輩・上司': '🧑🏻‍💼',
+  同僚: '💼',
+  子ども: '🧒🏻',
+  祖父母: '👴🏻',
+  夫婦: '💑',
+  その他: '✨',
+};
 // 性別のラベル変換用
 export const GENDER_LABELS = { 0: 'どちらでもない', 1: '男性', 2: '女性' };
 
 // ===== 共通UI関数 =====
 // HTMLのonclickから直接呼ばれるものは window に登録する
-window.toggleDrawer = function() {
+window.toggleDrawer = function () {
   document.getElementById('mobile-drawer').classList.toggle('open');
   document.getElementById('hamburger').classList.toggle('open');
-}
-window.closeDrawer = function() {
+};
+window.closeDrawer = function () {
   document.getElementById('mobile-drawer').classList.remove('open');
   document.getElementById('hamburger').classList.remove('open');
-}
-
+};
 
 let toastTimer;
-
 
 export function showToast(msg, type = 'success') {
   const t = document.getElementById('toast');
@@ -33,16 +43,16 @@ export function showToast(msg, type = 'success') {
 // onclick等で呼ばれる可能性も考慮してwindowにも登録
 window.showToast = showToast;
 
-
 export function formatAge(age) {
-  if (!age) return '';
-  if (age <= 9) return '9歳以下';
-  if (age >= 60) return '60歳以上';
-  return age + '代';
+  if (age === null || age === undefined || age === '') return '';
+  const n = Number(age);
+  if (Number.isNaN(n)) return '';
+  if (n <= 9) return '9歳以下';
+  if (n >= 60) return '60歳以上';
+  const decade = Math.floor(n / 10) * 10;
+  return decade + '代';
 }
 window.formatAge = formatAge;
-
-
 
 // 共通の投稿カード生成
 export function renderPostCard(post, options = {}) {
@@ -56,8 +66,8 @@ export function renderPostCard(post, options = {}) {
   const urlBlock = post.url
     ? `<a href="${post.url}" target="_blank" rel="noopener noreferrer" class="card-link">🔗 商品ページを見る</a>`
     : '';
-  const priceHtml = post.price 
-    ? `<div class="card-price">💰 ¥${Number(post.price).toLocaleString()}</div>` 
+  const priceHtml = post.price
+    ? `<div class="card-price">💰 ¥${Number(post.price).toLocaleString()}</div>`
     : '';
   const tags = [
     post.category ? `<span class="tag tag-cat">${post.category}</span>` : '',
