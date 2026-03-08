@@ -1,4 +1,4 @@
-const RELATION_ICONS = { '恋人': '💕', '友人': '🤝', '父': '👨', '母': '👩', '兄弟・姉妹': '👫', '先輩・上司': '🧑🏻‍💼','同僚': '💼', '子ども': '🧒🏻','祖父母': '👴🏻', 'その他': '✨'};
+export const RELATION_ICONS = { '恋人': '💕', '友人': '🤝', '父': '👨', '母': '👩', '兄弟・姉妹': '👫', '先輩・上司': '🧑🏻‍💼','同僚': '💼', '子ども': '🧒🏻','祖父母': '👴🏻', 'その他': '✨'};
 
 // ===== 共通UI関数 =====
 // HTMLのonclickから直接呼ばれるものは window に登録する
@@ -11,7 +11,7 @@ window.closeDrawer = function() {
   document.getElementById('hamburger').classList.remove('open');
 }
 let toastTimer;
-function showToast(msg, type = 'success') {
+export function showToast(msg, type = 'success') {
   const t = document.getElementById('toast');
   t.textContent = msg;
   t.style.background =
@@ -28,7 +28,7 @@ function showToast(msg, type = 'success') {
 window.showToast = showToast;
 
 // 共通の投稿カード生成
-function renderPostCard(post) {
+export function renderPostCard(post) {
   const imgBlock = post.image
     ? `<div class="card-img-wrap"><img class="card-img" src="${post.image}" alt="${post.product_name}" onerror="this.parentElement.style.display='none'"><div class="card-img-overlay"></div></div>`
     : `<div class="card-no-img">🎁</div>`;
