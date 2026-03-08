@@ -56,11 +56,7 @@ export function renderPostCard(post) {
       ${priceHtml}
       <div class="card-tags">${tags}</div>
       <p class="card-review">"${post.review}"</p>
-      <div class="card-price">¥${post.price?.toLocaleString() ?? '—'}</div>
       ${urlBlock}
-      <div class="card-footer">
-        <div class="card-author">by @${post.author}</div>
-      </div>
     </div>
   </div>`;
 }
