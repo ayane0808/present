@@ -16,7 +16,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   console.log('3日以内:', recentPosts.length);
 
-  const user = await getCurrentUser();
+  const user = getCurrentUser();
 
   document.getElementById('home-count').textContent =
       recentPosts.length + '件の口コミ';
@@ -24,7 +24,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   const g = document.getElementById('home-greeting');
 
   if (user) {
-    g.textContent = `👋 ${user.email}さん、いらっしゃいませ！`;
+    g.textContent = `👋 ${user.name}さん、いらっしゃいませ！`;
     g.style.display = 'inline-block';
   } else {
     g.style.display = 'none';

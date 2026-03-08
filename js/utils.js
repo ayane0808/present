@@ -10,7 +10,11 @@ window.closeDrawer = function() {
   document.getElementById('mobile-drawer').classList.remove('open');
   document.getElementById('hamburger').classList.remove('open');
 }
+
+
 let toastTimer;
+
+
 export function showToast(msg, type = 'success') {
   const t = document.getElementById('toast');
   t.textContent = msg;
@@ -26,6 +30,17 @@ export function showToast(msg, type = 'success') {
 }
 // onclick等で呼ばれる可能性も考慮してwindowにも登録
 window.showToast = showToast;
+
+
+function formatAge(age) {
+  if (!age) return '';
+  if (age <= 9) return '9歳以下';
+  if (age >= 60) return '60歳以上';
+  return age + '代';
+}
+window.formatAge = formatAge;
+
+
 
 // 共通の投稿カード生成
 export function renderPostCard(post) {
