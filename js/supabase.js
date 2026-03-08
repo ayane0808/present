@@ -58,3 +58,13 @@ export async function signOut() {
   const {error} = await supab.auth.signOut();
   if (error) console.error(error);
 }
+
+// APIキーを取得
+export async function getApiKey(name) {
+  const { data, error } = await supab.from('APIkey').select('key').eq('name', name).single();
+  if (error) {
+    console.error('Failed to fetch API key:', error);
+    return null;
+  }
+  return data?.key || null;
+}
