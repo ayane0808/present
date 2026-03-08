@@ -1,3 +1,6 @@
+import { addPost } from './supabase.js';
+import { showToast, RELATION_ICONS } from './utils.js';
+
 let newPost = { category: '', scene: '', relation: '' };
 
 function buildPostChips(containerId, items, key, type) {

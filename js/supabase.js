@@ -1,116 +1,70 @@
-const supabaseUrl = 'https://ecugpnzlyuzhntablaog.supabase.co';
-const supabaseAnonKey = 'sb_publishable_uRyuJ85gTZMjhLrPe_hAhw_4gLArWO6';
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
 
-const supab = supabase.createClient(supabaseUrl, supabaseAnonKey);
+const supabaseUrl = 'https://ecugpnzlyuzhntablaog.supabase.co';
+const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVjdWdwbnpseXV6aG50YWJsYW9nIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI4NjUxMDIsImV4cCI6MjA4ODQ0MTEwMn0.KjOHqHu6xnCoOHRaoTMMkbL6PIOVY4nEVVUW-NRZaD8';
+
+const supab = createClient(supabaseUrl, supabaseAnonKey);
 
 // postsを取得
-async function getPosts() {
+export async function getPosts() {
   const { data, error } = await supab.from('posts').select('*');
-  if (error) {
-    console.error(error);
-    return [];
-  }
+  if (error) { console.error(error); return []; }
   return data;
 }
 
-// usersを取得
-async function getUsers() {
-  const { data, error } = await supab.from('users').select('*');
-  if (error) {
-    console.error(error);
-    return [];
-  }
+// postを1件追加
+export async function addPost(post) {
+  const { data, error } = await supab.from('posts').insert([post]);
+  if (error) { console.error(error); return null; }
   return data;
 }
 
 // categoriesを取得
-async function getCategories() {
+export async function getCategories() {
   const { data, error } = await supab.from('categories').select('*');
-  if (error) {
-    console.error(error);
-    return [];
-  }
+  if (error) { console.error(error); return []; }
   return data;
 }
 
 // scenesを取得
-async function getScenes() {
+export async function getScenes() {
   const { data, error } = await supab.from('scenes').select('*');
-  if (error) {
-    console.error(error);
-    return [];
-  }
+  if (error) { console.error(error); return []; }
   return data;
 }
 
 // relationsを取得
-async function getRelations() {
+export async function getRelations() {
   const { data, error } = await supab.from('relations').select('*');
-  if (error) {
-    console.error(error);
-    return [];
-  }
+  if (error) { console.error(error); return []; }
   return data;
 }
 
-// ===== 共通UI関数 =====
-function toggleDrawer() {
-  document.getElementById('mobile-drawer').classList.toggle('open');
-  document.getElementById('hamburger').classList.toggle('open');
-}
-function closeDrawer() {
-  document.getElementById('mobile-drawer').classList.remove('open');
-  document.getElementById('hamburger').classList.remove('open');
+// ログイン中ユーザーを取得
+export async function getCurrentUser() {
+  const { data: { user } } = await supab.auth.getUser();
+  return user;
 }
 
-let toastTimer;
-function showToast(msg, type = 'success') {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.style.background =
-    type === 'error'
-      ? 'linear-gradient(135deg,#e74c3c,#c0392b)'
-      : 'linear-gradient(135deg,#5BAD8F,#7ECBA6)';
-  t.style.display = 'block';
-  clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => {
-    t.style.display = 'none';
-  }, 2800);
+// ログイン
+export async function signIn(email, password) {
+  const { data, error } = await supab.auth.signInWithPassword({ email, password });
+  if (error) { console.error(error); return null; }
+  return data.user;
 }
 
-// 共通の投稿カード生成
-function renderPostCard(post) {
-  const imgBlock = post.imageUrl
-    ? `<div class="card-img-wrap"><img class="card-img" src="${post.imageUrl}" alt="${post.productName}" onerror="this.parentElement.style.display='none'"><div class="card-img-overlay"></div></div>`
-    : `<div class="card-no-img">🎁</div>`;
-  const urlBlock = post.url
-    ? `<a href="${post.url}" target="_blank" rel="noopener noreferrer" class="card-link">🔗 商品ページを見る</a>`
-    : '';
-  const priceHtml = post.price 
-    ? `<div class="card-price">💰 ¥${Number(post.price).toLocaleString()}</div>` 
-    : '';
-  const tags = [
-    post.category ? `<span class="tag tag-cat">${post.category}</span>` : '',
-    post.scene ? `<span class="tag tag-scene">${post.scene}</span>` : '',
-    post.relation
-      ? `<span class="tag tag-rel">${RELATION_ICONS[post.relation] || '🎁'} ${post.relation}へ</span>`
-      : '',
-    post.age
-      ? `<span class="tag tag-age">${post.age} · ${post.gender}</span>`
-      : '',
-  ].join('');
+// ログアウト
+export async function signOut() {
+  const {error} = await supab.auth.signOut();
+  if (error) console.error(error);
+}
 
-  return `<div class="post-card">
-    ${imgBlock}
-    <div class="card-body">
-      <div class="card-product">🎁 ${post.productName}</div>
-      ${priceHtml}
-      <div class="card-tags">${tags}</div>
-      <p class="card-review">"${post.review}"</p>
-      ${urlBlock}
-      <div class="card-footer">
-        <div class="card-author">by @${post.author}</div>
-      </div>
-    </div>
-  </div>`;
+// APIキーを取得
+export async function getApiKey(name) {
+  const { data, error } = await supab.from('APIkey').select('key').eq('name', name).single();
+  if (error) {
+    console.error('Failed to fetch API key:', error);
+    return null;
+  }
+  return data?.key || null;
 }

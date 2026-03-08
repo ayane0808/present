@@ -1,7 +1,9 @@
+import { getPosts, getCategories, getScenes, getRelations } from './supabase.js';
+import { showToast, renderPostCard, RELATION_ICONS } from './utils.js';
+
 let CATEGORIES = [];
 let SCENES = [];
 let RELATIONS = [];
-let RELATION_ICONS = { '恋人': '💕', '友人': '🤝', '父': '👨', '母': '👩', '兄弟・姉妹': '👫', '先輩・上司': '🧑🏻‍💼','同僚': '💼', '子ども': '🧒🏻','祖父母': '👴🏻', 'その他': '✨'};
 
 let searchConditions = {
   age: '',
