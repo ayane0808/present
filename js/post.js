@@ -1,10 +1,13 @@
-import { addPost, getCategories, getScenes, getRelations } from './supabase.js';
+import { getCategories, getScenes, getRelations, supab } from './supabase.js';
 import { showToast, RELATION_ICONS } from './utils.js';
 
 let newPost = { category: '', scene: '', relation: '' };
 let postCategories = [];
 let postScenes = [];
 let postRelations = [];
+let categoryNameToId = {};
+let sceneNameToId = {};
+let relationNameToId = {};
 
 function getStoredUser() {
   if (typeof getUser === 'function') {
@@ -29,8 +32,8 @@ async function getPageUser() {
 
     return {
       id: currentUser.id,
-      age: currentUser.user_metadata?.age || '',
-      gender: currentUser.user_metadata?.gender || '',
+      age: currentUser.user_metadata?.age ?? currentUser.age ?? '',
+      gender: currentUser.user_metadata?.gender ?? currentUser.gender ?? '',
     };
   } catch {
     return null;
@@ -74,6 +77,22 @@ async function loadPostChipData() {
     postCategories = normalizeOptionRows(categories, 'category');
     postScenes = normalizeOptionRows(scenes, 'scene');
     postRelations = normalizeOptionRows(relations, 'relation');
+
+    categoryNameToId = Object.fromEntries(
+      (categories || [])
+        .map((row) => [row?.category_name ?? row?.name, row?.id])
+        .filter(([name, id]) => !!name && Number.isInteger(id)),
+    );
+    sceneNameToId = Object.fromEntries(
+      (scenes || [])
+        .map((row) => [row?.scene_name ?? row?.name, row?.id])
+        .filter(([name, id]) => !!name && Number.isInteger(id)),
+    );
+    relationNameToId = Object.fromEntries(
+      (relations || [])
+        .map((row) => [row?.relation_name ?? row?.name, row?.id])
+        .filter(([name, id]) => !!name && Number.isInteger(id)),
+    );
   } catch (error) {
     console.error('Failed to load post chip data from Supabase:', error);
   }
@@ -132,21 +151,21 @@ window.handlePost = async function () {
   }
 
   const finalPost = {
-    id: Date.now(),
-    productName,
+    product_name: productName,
     review,
     url,
-    category: newPost.category,
-    scene: newPost.scene,
-    relation: newPost.relation,
+    category_id: categoryNameToId[newPost.category] ?? null,
+    scene_id: sceneNameToId[newPost.scene] ?? null,
+    relation_id: relationNameToId[newPost.relation] ?? null,
     price: price ? Number(price) : null,
-    age: user.age,
-    gender: user.gender,
-    author: user.id,
+    user_id: user.id,
   };
 
-  const { addPost } = await import('./supabase.js');
-  await addPost(finalPost); // supabase.jsの関数で保存
+  const { error } = await supab.from('posts').insert([finalPost]).select('id').single();
+  if (error) {
+    showToast(`投稿に失敗しました: ${error.message}`, 'error');
+    return;
+  }
   showToast('投稿しました！🌸 ありがとうございます！');
   setTimeout(() => {
     window.location.href = 'index.html';
