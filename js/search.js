@@ -151,13 +151,19 @@ async function extractUserConditionsWithAi(userMsg, optionSets, apiKey) {
     const scene = normalizeConditionByOptions(parsed.scene, optionSets.scenes);
     const category = normalizeConditionByOptions(parsed.category, optionSets.categories);
 
-    const min = Number(parsed.minPrice);
-    const max = Number(parsed.maxPrice);
+    const rawMin = parsed.minPrice;
+    const rawMax = parsed.maxPrice;
+    const min = rawMin == null || rawMin === '' ? NaN : Number(rawMin);
+    const max = rawMax == null || rawMax === '' ? NaN : Number(rawMax);
     const hasMin = Number.isFinite(min) && min >= 0;
     const hasMax = Number.isFinite(max) && max >= 0;
-    const budget = hasMin || hasMax
+    let budget = hasMin || hasMax
       ? { min: hasMin ? min : 0, max: hasMax ? max : Infinity }
       : extractBudgetRange(userMsg);
+
+    if (budget && Number.isFinite(budget.min) && Number.isFinite(budget.max) && budget.min > budget.max) {
+      budget = { min: budget.max, max: budget.min };
+    }
 
     return { age, gender, relation, scene, category, budget };
   } catch {
@@ -262,8 +268,40 @@ function buildPostContext(posts) {
     .join('\n');
 }
 
+function buildDbSelectionContext(posts) {
+  if (!posts.length) return '候補データなし';
+  return posts
+    .map((post, idx) => {
+      const price = post.price == null || Number.isNaN(post.price)
+        ? '価格不明'
+        : `¥${post.price.toLocaleString()}`;
+      const url = post.url ? post.url : 'なし';
+      return `${idx + 1}. 商品名: ${post.productName} / 価格: ${price} / カテゴリ: ${post.category || '不明'} / シーン: ${post.scene || '不明'} / 関係: ${post.relation || '不明'} / 年代: ${post.age || '不明'} / 性別: ${post.gender || '不明'} / 口コミ: ${post.review || 'なし'} / URL: ${url}`;
+    })
+    .join('\n');
+}
+
+function buildDbSectionFromAi(aiRecommendations, summary) {
+  if (!Array.isArray(aiRecommendations) || !aiRecommendations.length) return null;
+
+  const lines = aiRecommendations.slice(0, 3).map((item) => {
+    const name = String(item?.productName || '商品名不明').trim();
+    const reason = String(item?.reason || '投稿内容との一致度が高い候補です').trim();
+    const review = String(item?.review || '口コミなし').trim();
+    const url = String(item?.url || '').trim();
+    const priceNum = Number(item?.price);
+    const pricePart = Number.isFinite(priceNum) ? `（¥${priceNum.toLocaleString()}）` : '';
+    const shortReview = review.slice(0, 60);
+    const reviewSuffix = review.length > 60 ? '...' : '';
+    const urlPart = url ? `\n  商品ページ: ${url}` : '';
+    return `- ${name}${pricePart}がおすすめです。\n  理由: ${reason}\n  口コミ: ${shortReview}${reviewSuffix}${urlPart}`;
+  });
+
+  return `【みんなのもらってうれしいギフト】\n- 抽出した条件:\n  - ${summary}\n${lines.join('\n')}`;
+}
+
 function buildDbSectionForUser(posts, userMsg, conditions) {
-  if (!posts.length) return '【みんなのもらって嬉しいギフト】\n- 相談内容に近い投稿データが見つかりませんでした。';
+  if (!posts.length) return '【みんなのもらってうれしいギフト】\n- 相談内容に近い投稿データが見つかりませんでした。';
 
   const text = userMsg.toLowerCase();
   const budget = extractBudgetRange(userMsg);
@@ -290,7 +328,7 @@ function buildDbSectionForUser(posts, userMsg, conditions) {
   });
 
   const summary = buildConditionSummary(conditions || {});
-  return `【みんなのもらって嬉しいギフト】\n- 抽出した条件:\n  - ${summary}\n${lines.join('\n')}`;
+  return `【みんなのもらってうれしいギフト】\n- 抽出した条件:\n  - ${summary}\n${lines.join('\n')}`;
 }
 
 function applyExtractedConditionsToUi(conditions) {
@@ -504,6 +542,9 @@ window.handleChatSend = async function () {
     const filteredByConditions = filterPostsByConditions(normalizedPosts, conditions);
     const basePosts = filteredByConditions.length ? filteredByConditions : normalizedPosts;
     const rankedPosts = rankPostsForPrompt(basePosts, userMsg);
+    const summary = buildConditionSummary(conditions || {});
+    const dbCandidates = rankedPosts.slice(0, 8);
+    const dbSelectionContext = buildDbSelectionContext(dbCandidates);
     const postContext = buildPostContext(rankedPosts);
 
     const response = await fetch(
@@ -518,7 +559,7 @@ window.handleChatSend = async function () {
               {
                 parts: [
                   {
-                    text: `あなたはプレゼント選びのアドバイザーです。ユーザーの要望に基づいて、適切なプレゼントのアドバイスを日本語で行ってください。\n\n以下はこのサービス内の実際の投稿データです。できるだけこの情報を優先して提案してください。\n${postContext}\n\nユーザーからの相談：「${userMsg}」\n\n出力は「AIからの提案」だけを2〜3個、箇条書きで返してください。先頭に見出しや前置きは不要です。`,
+                    text: `あなたはプレゼント選びのアドバイザーです。以下の条件抽出結果と投稿候補を使って回答してください。\n\nユーザー相談: 「${userMsg}」\n\n抽出条件:\n${summary}\n\n条件一致に近い投稿候補:\n${dbSelectionContext}\n\n加えて、一般提案用の投稿参考データ:\n${postContext}\n\n出力はJSONのみ。形式は次のとおり:\n{\n  "dbRecommendations": [\n    {\n      "productName": "",\n      "reason": "",\n      "review": "",\n      "url": "",\n      "price": 0\n    }\n  ],\n  "aiSuggestions": ["", ""]\n}\n\n要件:\n- dbRecommendations は投稿候補から3件選ぶ（最大3件、0件は不可）\n- reason は各候補で重複しない表現にする\n- review は候補に含まれる口コミの要点を短く抜き出す\n- aiSuggestions はDB候補で足りない観点を2〜3個、短文で出す\n- JSON以外の文字は一切出力しない`,
                   },
                 ],
               },
@@ -535,9 +576,26 @@ window.handleChatSend = async function () {
     const aiText =
         result.candidates?.[0]?.content?.parts?.[0]?.text ||
         '申し訳ありません。返答を生成できませんでした。';
+    const parsed = parseAiJson(aiText);
 
-    const dbSection = buildDbSectionForUser(rankedPosts, userMsg, conditions);
-    const finalText = `${dbSection}\n\n【AIからの提案】\n${aiText}`;
+    let dbSection = buildDbSectionForUser(rankedPosts, userMsg, conditions);
+    let aiSuggestionText = aiText;
+
+    if (parsed && typeof parsed === 'object') {
+      const dbSectionFromAi = buildDbSectionFromAi(parsed.dbRecommendations, summary);
+      if (dbSectionFromAi) dbSection = dbSectionFromAi;
+
+      if (Array.isArray(parsed.aiSuggestions) && parsed.aiSuggestions.length) {
+        aiSuggestionText = parsed.aiSuggestions
+          .slice(0, 3)
+          .map((line) => `- ${String(line).trim()}`)
+          .join('\n');
+      } else {
+        aiSuggestionText = '- 似合うテイストやサイズ感を確認して選ぶ\n- 贈る相手の好みの色や香りを優先する';
+      }
+    }
+
+    const finalText = `${dbSection}\n\n【AIからの提案】\n${aiSuggestionText}`;
 
     chatMessages.push({
       role: 'ai',
