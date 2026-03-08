@@ -1,6 +1,8 @@
 import { getPosts, getCurrentUser  } from './supabase.js';
 document.addEventListener('DOMContentLoaded', async () => {
   const posts = await getPosts();
+  console.log('posts:', posts);
+  console.log('件数:', posts.length);
   const user = await getCurrentUser();//ログインしてるユーザ
 
   document.getElementById('home-count').textContent =
