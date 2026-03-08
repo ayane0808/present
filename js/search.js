@@ -1,3 +1,25 @@
+// プレゼント関係の定数（仮実装）
+const RELATIONS = ['友人', '家族', '恋人', '同僚', '自分'];
+const SCENES = ['誕生日', '記念日', 'クリスマス', '卒業', '入学', 'その他'];
+const CATEGORIES = ['雑貨', '食品', '家電', 'ファッション', '趣味', 'その他'];
+const RELATION_ICONS = {
+  '友人': '👫',
+  '家族': '👪',
+  '恋人': '💑',
+  '同僚': '👔',
+  '自分': '🧑',
+};
+
+// トースト表示（仮実装）
+function showToast(message, type = 'info') {
+  const toast = document.getElementById('toast');
+  toast.textContent = message;
+  toast.className = 'toast ' + type;
+  toast.style.display = 'block';
+  setTimeout(() => {
+    toast.style.display = 'none';
+  }, 2000);
+}
 let searchConditions = {
   age: '',
   gender: '',
@@ -129,7 +151,10 @@ window.handleChatSend = async function () {
   box.scrollTop = box.scrollHeight;
 
   try {
-    const apiKey = 'AIzaSyAPtu6XgzisQ3jqFD1Ea-7QUlL0JVYLFSU';
+    const apiKey = await getApiKey('TrackJobHackathonAPI');
+    if (!apiKey) {
+      throw new Error('APIキーが見つかりません');
+    }
     const response = await fetch(
       `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent?key=${apiKey}`,
       {
