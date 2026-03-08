@@ -50,32 +50,25 @@
       color: var(--sumi);
     }
 
-    /* search.jsが操作するIDに合わせたクラス */
-    #search-button-mode { display: block; }
-    #search-ai-mode { display: none; }
-
     .search-screen-button {
       display: grid;
       grid-template-columns: 320px 1fr;
       gap: 24px;
       padding: 32px;
-      animation: fadeIn 0.2s ease;
     }
 
     @media (max-width: 768px) {
       .search-screen-button { grid-template-columns: 1fr; padding: 18px 16px; }
     }
 
-    .search-screen-ai {
-      display: flex;
+    #search-ai-mode {
       flex-direction: column;
       height: calc(100vh - 130px);
       padding: 24px 32px;
-      animation: fadeIn 0.2s ease;
     }
 
     @media (max-width: 768px) {
-      .search-screen-ai { padding: 16px; }
+      #search-ai-mode { padding: 16px; }
     }
 
     .chat-box-full {
@@ -156,11 +149,10 @@
   </div>
 
   <!-- ===== 条件検索モード ===== -->
-  <div class="search-screen-button">
+  <div class="search-screen-button" id="search-button-mode-wrapper">
     <div>
       <div class="search-panel">
         <div class="search-panel-title">🔍 絞り込み条件</div>
-
         <div id="search-button-mode">
           <div class="filter-section">
             <div class="filter-label">👤 相手の年代</div>
@@ -206,22 +198,6 @@
           </div>
           <button class="btn-primary full" onclick="handleSearch()">🔍 この条件で探す</button>
         </div>
-
-        <div id="search-ai-mode">
-          <div class="chat-box" id="chat-box"></div>
-          <div class="chat-input-row">
-            <input
-                    type="text"
-                    class="input-field"
-                    id="chat-input"
-                    placeholder="例：30代女性の友人への誕生日プレゼント"
-                    style="flex: 1"
-                    onkeydown="if (event.key === 'Enter') handleChatSend();"
-            />
-            <button class="chat-send" id="chat-send-btn" onclick="handleChatSend()">→</button>
-          </div>
-        </div>
-
       </div>
     </div>
 
@@ -231,6 +207,21 @@
         <div class="es-title">条件を選んで探してみましょう</div>
         <div class="es-sub">左のパネルで条件を絞り込んで<br />ぴったりのプレゼントを見つけてください。</div>
       </div>
+    </div>
+  </div>
+
+  <!-- ===== AIチャットモード（全画面） ===== -->
+  <div id="search-ai-mode" style="display:none;">
+    <div class="chat-box-full" id="chat-box"></div>
+    <div class="chat-input-row-full">
+      <input
+              type="text"
+              class="input-field"
+              id="chat-input"
+              placeholder="例：30代女性の友人への誕生日プレゼント"
+              onkeydown="if(event.key==='Enter')handleChatSend();"
+      />
+      <button class="chat-send-full" id="chat-send-btn" onclick="handleChatSend()">→</button>
     </div>
   </div>
 
