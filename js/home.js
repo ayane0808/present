@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
   const posts = getPosts();
-  const user = getUser();
+  const user = getUsers();
 
   document.getElementById('home-count').textContent =
     posts.length + '件の口コミ';

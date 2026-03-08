@@ -1,12 +1,10 @@
-import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
-
 const supabaseUrl = 'https://ecugpnzlyuzhntablaog.supabase.co';
 const supabaseAnonKey = 'sb_publishable_uRyuJ85gTZMjhLrPe_hAhw_4gLArWO6';
 
-export const supab = createClient(supabaseUrl, supabaseAnonKey);
+const supab = supabase.createClient(supabaseUrl, supabaseAnonKey);
 
 // postsを取得
-export async function getPosts() {
+async function getPosts() {
   const { data, error } = await supab.from('posts').select('*');
   if (error) {
     console.error(error);
@@ -16,7 +14,7 @@ export async function getPosts() {
 }
 
 // usersを取得
-export async function getUsers() {
+async function getUsers() {
   const { data, error } = await supab.from('users').select('*');
   if (error) {
     console.error(error);
@@ -26,7 +24,7 @@ export async function getUsers() {
 }
 
 // categoriesを取得
-export async function getCategories() {
+async function getCategories() {
   const { data, error } = await supab.from('categories').select('*');
   if (error) {
     console.error(error);
@@ -36,7 +34,7 @@ export async function getCategories() {
 }
 
 // scenesを取得
-export async function getScenes() {
+async function getScenes() {
   const { data, error } = await supab.from('scenes').select('*');
   if (error) {
     console.error(error);
@@ -46,7 +44,7 @@ export async function getScenes() {
 }
 
 // relationsを取得
-export async function getRelations() {
+async function getRelations() {
   const { data, error } = await supab.from('relations').select('*');
   if (error) {
     console.error(error);
