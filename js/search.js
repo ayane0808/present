@@ -20,6 +20,21 @@ let chatMessages = [
   },
 ];
 let aiLoading = false;
+let cachedAiApiKey = null;
+
+async function getAiApiKey() {
+  if (cachedAiApiKey) return cachedAiApiKey;
+
+  const { getApiKey } = await import('./supabase.js');
+  const key = await getApiKey('gemini');
+
+  if (!key) {
+    throw new Error('APIキーが見つかりません（APIkey.name = gemini）');
+  }
+
+  cachedAiApiKey = key;
+  return key;
+}
 
 function setSearchMode(mode) {
   searchMode = mode;
@@ -136,7 +151,7 @@ window.handleChatSend = async function () {
   box.scrollTop = box.scrollHeight;
 
   try {
-    const apiKey = 'AIzaSyAPtu6XgzisQ3jqFD1Ea-7QUlL0JVYLFSU';
+    const apiKey = await getAiApiKey();
     const response = await fetch(
       `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent?key=${apiKey}`,
       {
