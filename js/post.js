@@ -2,6 +2,93 @@ import { addPost, getCategories, getScenes, getRelations } from './supabase.js';
 import { showToast, RELATION_ICONS } from './utils.js';
 
 let newPost = { category: '', scene: '', relation: '' };
+let postCategories = [];
+let postScenes = [];
+let postRelations = [];
+
+function getStoredUser() {
+  if (typeof getUser === 'function') {
+    return getUser();
+  }
+  try {
+    const raw = localStorage.getItem('user');
+    return raw ? JSON.parse(raw) : null;
+  } catch {
+    return null;
+  }
+}
+
+async function getPageUser() {
+  const localUser = getStoredUser();
+  if (localUser) return localUser;
+
+  try {
+    const { getCurrentUser } = await import('./supabase.js');
+    const currentUser = await getCurrentUser();
+    if (!currentUser) return null;
+
+    return {
+      id: currentUser.id,
+      age: currentUser.user_metadata?.age || '',
+      gender: currentUser.user_metadata?.gender || '',
+    };
+  } catch {
+    return null;
+  }
+}
+
+const postRelationIcons =
+  typeof RELATION_ICONS !== 'undefined' ? RELATION_ICONS : {};
+
+function normalizeOptionRows(rows, fallbackField) {
+  if (!Array.isArray(rows)) return [];
+  return rows
+    .map((row) =>
+      row?.name ??
+      row?.label ??
+      row?.title ??
+      row?.category_name ??
+      row?.scene_name ??
+      row?.relation_name ??
+      row?.[fallbackField] ??
+      '',
+    )
+    .filter((v) => typeof v === 'string' && v.trim().length > 0);
+}
+
+function getPostItemsByKey(key) {
+  if (key === 'category') return postCategories;
+  if (key === 'scene') return postScenes;
+  return postRelations;
+}
+
+async function loadPostChipData() {
+  try {
+    const { getCategories, getScenes, getRelations } = await import('./supabase.js');
+    const [categories, scenes, relations] = await Promise.all([
+      getCategories(),
+      getScenes(),
+      getRelations(),
+    ]);
+
+    postCategories = normalizeOptionRows(categories, 'category');
+    postScenes = normalizeOptionRows(scenes, 'scene');
+    postRelations = normalizeOptionRows(relations, 'relation');
+  } catch (error) {
+    console.error('Failed to load post chip data from Supabase:', error);
+  }
+
+  // 既存データがある場合のフォールバック
+  if (!postCategories.length && typeof CATEGORIES !== 'undefined') {
+    postCategories = CATEGORIES;
+  }
+  if (!postScenes.length && typeof SCENES !== 'undefined') {
+    postScenes = SCENES;
+  }
+  if (!postRelations.length && typeof RELATIONS !== 'undefined') {
+    postRelations = RELATIONS;
+  }
+}
 
 function buildPostChips(containerId, items, key, type) {
   const el = document.getElementById(containerId);
@@ -10,7 +97,7 @@ function buildPostChips(containerId, items, key, type) {
     .map((item) => {
       const cls = type === 'purple' ? 'chip-purple' : 'chip';
       const icon =
-        type === 'purple' ? `<span>${RELATION_ICONS[item] || ''}</span>` : '';
+        type === 'purple' ? `<span>${postRelationIcons[item] || ''}</span>` : '';
       const active = newPost[key] === item ? 'active' : '';
       return `<button class="${cls} ${active}" onclick="togglePostChip('${key}','${item}','${containerId}')">${icon}${item}</button>`;
     })
@@ -21,14 +108,14 @@ window.togglePostChip = function (key, val, containerId) {
   newPost[key] = newPost[key] === val ? '' : val;
   buildPostChips(
     containerId,
-    key === 'category' ? CATEGORIES : key === 'scene' ? SCENES : RELATIONS,
+    getPostItemsByKey(key),
     key,
     key === 'relation' ? 'purple' : 'red',
   );
 };
 
-window.handlePost = function () {
-  const user = getUsers();
+window.handlePost = async function () {
+  const user = await getPageUser();
   if (!user) {
     showToast('投稿するにはログインが必要です', 'error');
     return;
@@ -58,20 +145,23 @@ window.handlePost = function () {
     author: user.id,
   };
 
-  addPost(finalPost); // supabase.jsの関数で保存
+  const { addPost } = await import('./supabase.js');
+  await addPost(finalPost); // supabase.jsの関数で保存
   showToast('投稿しました！🌸 ありがとうございます！');
   setTimeout(() => {
     window.location.href = 'index.html';
   }, 1500);
 };
 
-document.addEventListener('DOMContentLoaded', () => {
-  const user = getUsers();
+document.addEventListener('DOMContentLoaded', async () => {
+  const user = await getPageUser();
   document.getElementById('post-login-warn').style.display = user
     ? 'none'
     : 'block';
 
-  buildPostChips('post-chips-category', CATEGORIES, 'category', 'red');
-  buildPostChips('post-chips-scene', SCENES, 'scene', 'red');
-  buildPostChips('post-chips-relation', RELATIONS, 'relation', 'purple');
+  await loadPostChipData();
+
+  buildPostChips('post-chips-category', postCategories, 'category', 'red');
+  buildPostChips('post-chips-scene', postScenes, 'scene', 'red');
+  buildPostChips('post-chips-relation', postRelations, 'relation', 'purple');
 });
