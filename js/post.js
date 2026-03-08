@@ -8,6 +8,7 @@ let postRelations = [];
 let categoryNameToId = {};
 let sceneNameToId = {};
 let relationNameToId = {};
+let editPostId = null;
 
 function getStoredUser() {
   if (typeof getUser === 'function') {
@@ -161,14 +162,26 @@ window.handlePost = async function () {
     user_id: user.id,
   };
 
-  const { error } = await supab.from('posts').insert([finalPost]).select('id').single();
-  if (error) {
-    showToast(`投稿に失敗しました: ${error.message}`, 'error');
-    return;
+  if (editPostId) {
+    // 編集（UPDATE）処理
+    const { error } = await supab.from('posts').update(finalPost).eq('id', editPostId);
+    if (error) {
+      showToast(`更新に失敗しました: ${error.message}`, 'error');
+      return;
+    }
+    showToast('編集を保存しました！🌸');
+  } else {
+    // 新規投稿（INSERT）処理
+    const { error } = await supab.from('posts').insert([finalPost]);
+    if (error) {
+      showToast(`投稿に失敗しました: ${error.message}`, 'error');
+      return;
+    }
+    showToast('投稿しました！🌸 ありがとうございます！');
   }
-  showToast('投稿しました！🌸 ありがとうございます！');
   setTimeout(() => {
-    window.location.href = 'index.html';
+    // 投稿後はホーム、編集後はマイページ
+    window.location.href = editPostId ? 'auth.html' : 'index.html';
   }, 1500);
 };
 
@@ -179,6 +192,36 @@ document.addEventListener('DOMContentLoaded', async () => {
     : 'block';
 
   await loadPostChipData();
+
+  // 編集モードの判定とデータの読み込み
+  const params = new URLSearchParams(window.location.search);
+  editPostId = params.get('edit');
+
+  if (editPostId) {
+    // 見出しとボタンの文字を「編集」用に変える
+    document.querySelector('.section-title').textContent = '口コミを編集';
+    document.querySelector('.btn-primary.full').textContent = '🌸 編集を保存する';
+
+    // 対象の投稿データをデータベースから取得
+    const { data: post } = await supab.from('posts').select('*').eq('id', editPostId).single();
+    
+    if (post) {
+      // フォームに文字を埋める
+      document.getElementById('post-product').value = post.product_name || '';
+      document.getElementById('post-price').value = post.price || '';
+      document.getElementById('post-review').value = post.review || '';
+      document.getElementById('post-url').value = post.url || '';
+
+      // IDからカテゴリ名などを逆引きしてチップを選択状態にする
+      const catName = Object.keys(categoryNameToId).find(k => categoryNameToId[k] === post.category_id);
+      const sceneName = Object.keys(sceneNameToId).find(k => sceneNameToId[k] === post.scene_id);
+      const relName = Object.keys(relationNameToId).find(k => relationNameToId[k] === post.relation_id);
+
+      if (catName) newPost.category = catName;
+      if (sceneName) newPost.scene = sceneName;
+      if (relName) newPost.relation = relName;
+    }
+  }
 
   buildPostChips('post-chips-category', postCategories, 'category', 'red');
   buildPostChips('post-chips-scene', postScenes, 'scene', 'red');

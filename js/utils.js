@@ -68,9 +68,10 @@ export function renderPostCard(post, options = {}) {
       : '',
   ].join('');
 
-  // マイページ用のアクションボタン（削除）
-  const deleteActionHtml = isMyPost
+  // 編集ボタンと削除ボタンを横並びにする
+  const actionHtml = isMyPost
     ? `<div style="display: flex; gap: 8px; margin-top: 12px; padding-top: 12px; border-top: 1px dashed rgba(255, 107, 138, 0.2);">
+        <button onclick="window.location.href='post.html?edit=${post.id}'" style="flex: 1; padding: 8px; border-radius: 8px; border: 1.5px solid #5bad8f; background: #fff; color: #5bad8f; font-size: 13px; font-weight: 700; cursor: pointer; transition: 0.2s;" onmouseover="this.style.background='#5bad8f'; this.style.color='#fff';" onmouseout="this.style.background='#fff'; this.style.color='#5bad8f';">✏️ 編集する</button>
         <button onclick="handleDeletePost('${post.id}')" style="flex: 1; padding: 8px; border-radius: 8px; border: 1.5px solid #ff4d4f; background: #fff; color: #ff4d4f; font-size: 13px; font-weight: 700; cursor: pointer; transition: 0.2s;" onmouseover="this.style.background='#ff4d4f'; this.style.color='#fff';" onmouseout="this.style.background='#fff'; this.style.color='#ff4d4f';">🗑 削除する</button>
        </div>`
     : '';
@@ -83,7 +84,7 @@ export function renderPostCard(post, options = {}) {
       <div class="card-tags">${tags}</div>
       <p class="card-review">"${post.review}"</p>
       ${urlBlock}
-      ${deleteActionHtml}
+      ${actionHtml}
     </div>
   </div>`;
 }
