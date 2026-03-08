@@ -1,4 +1,4 @@
-import { addPost } from './supabase.js';
+import { addPost, getCategories, getScenes, getRelations } from './supabase.js';
 import { showToast, RELATION_ICONS } from './utils.js';
 
 let newPost = { category: '', scene: '', relation: '' };
