@@ -1,4 +1,4 @@
-import { signIn, signOut, signUp, getCurrentUser, getPosts } from './supabase.js';
+import { signIn, signOut, signUp, getCurrentUser, getPosts, deletePost } from './supabase.js';
 import { showToast, renderPostCard } from './utils.js';
 
 let authMode = 'login';
@@ -48,6 +48,18 @@ window.handleLogout = function() {
   renderAccount();
 }
 
+window.handleDeletePost = async function(postId) {
+  if (!confirm('この投稿を削除してもよろしいですか？\n※この操作は取り消せません。')) return;
+
+  const success = await deletePost(postId);
+  if (success) {
+    showToast('投稿を削除しました 🗑️');
+    renderAccount(); // 画面を再読み込みして投稿を消す
+  } else {
+    showToast('削除に失敗しました', 'error');
+  }
+}
+
 async function renderAccount() {
   const user = getCurrentUser();
   const li = document.getElementById('account-logged-in');
@@ -72,7 +84,7 @@ async function renderAccount() {
       const myPosts = allPosts.filter(p => p.user_id === user.id || p.author === user.id);
 
       if (myPosts.length > 0) {
-        myPostsContainer.innerHTML = myPosts.map(renderPostCard).join('');
+        myPostsContainer.innerHTML = myPosts.map(p => renderPostCard(p, { isMyPost: true })).join('');
       } else {
         myPostsContainer.innerHTML = `
           <div class="empty-state" style="grid-column: 1 / -1;">

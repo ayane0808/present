@@ -56,6 +56,16 @@ export async function signUp(id, password, age, gender, name) {
   return user;
 }
 
+// 投稿を削除
+export async function deletePost(postId) {
+  const { error } = await supab.from('posts').delete().eq('id', postId);
+  if (error) {
+    console.error('削除エラー:', error);
+    return false;
+  }
+  return true;
+}
+
 // getCurrentUser → localStorageから取得に変更
 export function getCurrentUser() {
   const user = localStorage.getItem('gf_user');
