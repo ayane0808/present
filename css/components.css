@@ -46,6 +46,36 @@ textarea.input-field { resize: none; }
 .chip-purple.active { background: linear-gradient(135deg, var(--nishiki), #c5a3df); color: #fff; border-color: var(--nishiki); font-weight: 700; box-shadow: 0 3px 10px rgba(168, 130, 197, 0.28); }
 
 /* ============================================================
+   noUiSlider Customization (予算スライダー)
+============================================================ */
+.noUi-target {
+  background: rgba(255, 107, 138, 0.15);
+  border: none;
+  box-shadow: none;
+  height: 6px;
+  border-radius: 10px;
+}
+.noUi-connect {
+  background: linear-gradient(135deg, var(--sakura), var(--kogane));
+}
+.noUi-handle {
+  border: 2px solid #fff;
+  border-radius: 50%;
+  background: var(--sakura);
+  box-shadow: 0 2px 6px rgba(255, 107, 138, 0.4);
+  cursor: pointer;
+}
+.noUi-horizontal .noUi-handle {
+  width: 20px;
+  height: 20px;
+  right: -10px;
+  top: -7px;
+}
+.noUi-handle::before, .noUi-handle::after {
+  display: none; /* デフォルトの縦線を消す */
+}
+
+/* ============================================================
    POST CARD GRID
 ============================================================ */
 .posts-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
@@ -84,3 +114,13 @@ textarea.input-field { resize: none; }
 
 .card-link { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; color: var(--matcha); background: rgba(91, 173, 143, 0.09); border: 1px solid rgba(91, 173, 143, 0.25); padding: 4px 12px; border-radius: 50px; margin-bottom: 8px; transition: background 0.2s; }
 .card-link:hover { background: rgba(91, 173, 143, 0.18); }
+/* カードの値段表示用 */
+.card-price {
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--sakura);
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}

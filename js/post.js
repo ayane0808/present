@@ -1,3 +1,6 @@
+import { addPost, getCategories, getScenes, getRelations } from './supabase.js';
+import { showToast, RELATION_ICONS } from './utils.js';
+
 let newPost = { category: '', scene: '', relation: '' };
 let postCategories = [];
 let postScenes = [];
@@ -121,6 +124,7 @@ window.handlePost = async function () {
   const productName = document.getElementById('post-product').value.trim();
   const review = document.getElementById('post-review').value.trim();
   const url = document.getElementById('post-url').value.trim();
+  const price = document.getElementById('post-price').value.trim();
 
   if (!productName || !review) {
     showToast('商品名とレビューは必須です', 'error');
@@ -135,9 +139,9 @@ window.handlePost = async function () {
     category: newPost.category,
     scene: newPost.scene,
     relation: newPost.relation,
+    price: price ? Number(price) : null,
     age: user.age,
     gender: user.gender,
-    likes: 0,
     author: user.id,
   };
 
