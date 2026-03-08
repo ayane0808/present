@@ -3,7 +3,7 @@ import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js
 const supabaseUrl = 'https://ecugpnzlyuzhntablaog.supabase.co';
 const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVjdWdwbnpseXV6aG50YWJsYW9nIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI4NjUxMDIsImV4cCI6MjA4ODQ0MTEwMn0.KjOHqHu6xnCoOHRaoTMMkbL6PIOVY4nEVVUW-NRZaD8';
 
-const supab = createClient(supabaseUrl, supabaseAnonKey);
+export const supab = createClient(supabaseUrl, supabaseAnonKey);
 
 // postsを取得
 export async function getPosts() {
