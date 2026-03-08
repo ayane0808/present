@@ -1,4 +1,5 @@
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+import { formatAge, GENDER_LABELS } from './utils.js';
 
 const supabaseUrl = 'https://ecugpnzlyuzhntablaog.supabase.co';
 const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVjdWdwbnpseXV6aG50YWJsYW9nIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI4NjUxMDIsImV4cCI6MjA4ODQ0MTEwMn0.KjOHqHu6xnCoOHRaoTMMkbL6PIOVY4nEVVUW-NRZaD8';
@@ -16,14 +17,6 @@ export async function getPosts() {
     users ( age, gender )
   `);
   if (error) { console.error(error); return []; }
-  // 年代と性別のラベル変換用
-  const formatAge = (age) => {
-    if (!age) return '';
-    if (age <= 9) return '9歳以下';
-    if (age >= 60) return '60代以上';
-    return age + '代';
-  };
-  const genderLabel = { 0: 'どちらでもない', 1: '男性', 2: '女性' };
 
   // フロントエンドのUIや検索ロジックで使うプロパティ（category, scene, relation, age, gender）に割り当てて返す
   return data.map(post => ({
@@ -32,7 +25,7 @@ export async function getPosts() {
     scene: post.scenes?.scene_name || null,
     relation: post.relations?.relation_name || null,
     age: post.users ? formatAge(post.users.age) : null,
-    gender: post.users ? genderLabel[post.users.gender] || null : null
+    gender: post.users ? GENDER_LABELS[post.users.gender] || null : null
   }));
 }
 

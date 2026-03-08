@@ -1,5 +1,5 @@
 import { signIn, signOut, signUp, getCurrentUser, getPosts, deletePost } from './supabase.js';
-import { showToast, renderPostCard } from './utils.js';
+import { showToast, renderPostCard, formatAge, GENDER_LABELS } from './utils.js';
 
 let authMode = 'login';
 
@@ -65,13 +65,11 @@ async function renderAccount() {
   const li = document.getElementById('account-logged-in');
   const au = document.getElementById('account-auth');
 
-  const genderLabel = { 0: 'どちらでもない', 1: '男性', 2: '女性' };
-
   if (user) {
     li.style.display = 'block'; au.style.display = 'none';
     document.getElementById('profile-name').textContent = user.name;
     document.getElementById('profile-sub').textContent =
-        formatAge(user.age) + ' · ' + (genderLabel[user.gender] || ''); // ← ifの中に移動
+        formatAge(user.age) + ' · ' + (GENDER_LABELS[user.gender] || '');
     document.getElementById('profile-id').textContent = '@' + user.id;
 
     // --- マイページ（自分の投稿）の表示処理 ---
