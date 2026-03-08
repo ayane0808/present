@@ -38,14 +38,15 @@ async function getAiApiKey() {
 
 window.setSearchMode = function(mode) {
   searchMode = mode;
-  document.getElementById('search-button-mode').style.display =
-    mode === 'button' ? 'block' : 'none';
-  document.getElementById('search-ai-mode').style.display =
-    mode === 'ai' ? 'block' : 'none';
-  document
-    .getElementById('tab-button')
-    .classList.toggle('active', mode === 'button');
+  const buttonWrapper = document.getElementById('search-button-mode-wrapper');
+  const aiMode = document.getElementById('search-ai-mode');
+
+  buttonWrapper.style.display = mode === 'button' ? 'grid' : 'none';
+  aiMode.style.display = mode === 'ai' ? 'flex' : 'none';
+
+  document.getElementById('tab-button').classList.toggle('active', mode === 'button');
   document.getElementById('tab-ai').classList.toggle('active', mode === 'ai');
+
   if (mode === 'ai') renderChat();
 }
 
@@ -60,14 +61,14 @@ function buildChips(containerId, items, key, stateObj) {
   const el = document.getElementById(containerId);
   if (!el) return;
   el.innerHTML = items
-    .map((item) => {
-      const isPurple = key === 'relation';
-      const cls = isPurple ? 'chip-purple' : 'chip';
-      const icon = isPurple ? `<span>${RELATION_ICONS[item] || ''}</span>` : '';
-      const active = stateObj[key] === item ? 'active' : '';
-      return `<button class="${cls} ${active}" onclick="toggleSearchCondition('${key}','${item}')">${icon}${item}</button>`;
-    })
-    .join('');
+      .map((item) => {
+        const isPurple = key === 'relation';
+        const cls = isPurple ? 'chip-purple' : 'chip';
+        const icon = isPurple ? `<span>${RELATION_ICONS[item] || ''}</span>` : '';
+        const active = stateObj[key] === item ? 'active' : '';
+        return `<button class="${cls} ${active}" onclick="toggleSearchCondition('${key}','${item}')">${icon}${item}</button>`;
+      })
+      .join('');
 }
 
 window.toggleSearchCondition = function (key, val) {
@@ -95,10 +96,10 @@ window.handleSearch = async function () {
   const filtered = allPosts.filter((p) => {
     if (searchConditions.age && p.age !== searchConditions.age) return false;
     if (
-      searchConditions.gender &&
-      searchConditions.gender !== 'どちらでも' &&
-      p.gender !== searchConditions.gender &&
-      p.gender !== 'どちらでも'
+        searchConditions.gender &&
+        searchConditions.gender !== 'どちらでも' &&
+        p.gender !== searchConditions.gender &&
+        p.gender !== 'どちらでも'
     )
       return false;
     if (searchConditions.relation && p.relation !== searchConditions.relation)
@@ -137,13 +138,13 @@ function renderChat() {
   const box = document.getElementById('chat-box');
   if (!box) return;
   box.innerHTML = chatMessages
-    .map(
-      (m) => `
+      .map(
+          (m) => `
     <div class="chat-msg ${m.role === 'user' ? 'user' : ''}">
       <div class="chat-bubble ${m.role === 'ai' ? 'ai' : 'user'}">${m.text}</div>
     </div>`,
-    )
-    .join('');
+      )
+      .join('');
   box.scrollTop = box.scrollHeight;
 }
 
@@ -151,7 +152,7 @@ window.handleChatSend = async function () {
   const input = document.getElementById('chat-input');
   const userMsg = input.value.trim();
   if (!userMsg || aiLoading) return;
-  
+
   input.value = '';
   chatMessages.push({ role: 'user', text: userMsg });
   aiLoading = true;
@@ -162,31 +163,31 @@ window.handleChatSend = async function () {
   const td = document.createElement('div');
   td.className = 'typing-dots';
   td.innerHTML =
-    '<div class="dot"></div><div class="dot"></div><div class="dot"></div>';
+      '<div class="dot"></div><div class="dot"></div><div class="dot"></div>';
   box.appendChild(td);
   box.scrollTop = box.scrollHeight;
 
   try {
     const apiKey = await getAiApiKey();
     const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent?key=${apiKey}`,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          contents: [
-            {
-              parts: [
-                {
-                  text: `あなたはプレゼント選びのアドバイザーです。ユーザーの要望に基づいて、適切なプレゼントのアドバイスを日本語で行ってください。\n\nユーザーからの相談：「${userMsg}」\n\nアドバイスは簡潔に（100字程度）、具体的なプレゼント提案を含めてください。`,
-                },
-              ],
-            },
-          ],
-        }),
-      }
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent?key=${apiKey}`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            contents: [
+              {
+                parts: [
+                  {
+                    text: `あなたはプレゼント選びのアドバイザーです。ユーザーの要望に基づいて、適切なプレゼントのアドバイスを日本語で行ってください。\n\nユーザーからの相談：「${userMsg}」\n\nアドバイスは簡潔に（100字程度）、具体的なプレゼント提案を含めてください。`,
+                  },
+                ],
+              },
+            ],
+          }),
+        }
     );
 
     if (!response.ok) {
@@ -195,8 +196,8 @@ window.handleChatSend = async function () {
 
     const result = await response.json();
     const aiText =
-      result.candidates?.[0]?.content?.parts?.[0]?.text ||
-      '申し訳ありません。返答を生成できませんでした。';
+        result.candidates?.[0]?.content?.parts?.[0]?.text ||
+        '申し訳ありません。返答を生成できませんでした。';
 
     chatMessages.push({
       role: 'ai',
@@ -257,7 +258,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
 
     const priceValue = document.getElementById('price-value');
-    
+
     slider.noUiSlider.on('update', function (values, handle) {
       const min = Math.round(values[0]).toLocaleString();
       const max = Math.round(values[1]);
