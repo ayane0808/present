@@ -1,4 +1,5 @@
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+import { formatAge, GENDER_LABELS } from './utils.js';
 
 const supabaseUrl = 'https://ecugpnzlyuzhntablaog.supabase.co';
 const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVjdWdwbnpseXV6aG50YWJsYW9nIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI4NjUxMDIsImV4cCI6MjA4ODQ0MTEwMn0.KjOHqHu6xnCoOHRaoTMMkbL6PIOVY4nEVVUW-NRZaD8';
@@ -7,9 +8,25 @@ export const supab = createClient(supabaseUrl, supabaseAnonKey);
 
 // postsを取得
 export async function getPosts() {
-  const { data, error } = await supab.from('posts').select('*');
+  // 関連テーブルから必要な「名前」や「年齢・性別」も一緒に取得する
+  const { data, error } = await supab.from('posts').select(`
+    *,
+    categories ( category_name ),
+    scenes ( scene_name ),
+    relations ( relation_name ),
+    users ( age, gender )
+  `);
   if (error) { console.error(error); return []; }
-  return data;
+
+  // フロントエンドのUIや検索ロジックで使うプロパティ（category, scene, relation, age, gender）に割り当てて返す
+  return data.map(post => ({
+    ...post,
+    category: post.categories?.category_name || null,
+    scene: post.scenes?.scene_name || null,
+    relation: post.relations?.relation_name || null,
+    age: post.users ? formatAge(post.users.age) : null,
+    gender: post.users ? GENDER_LABELS[post.users.gender] || null : null
+  }));
 }
 
 // postを1件追加
@@ -98,4 +115,3 @@ export async function getApiKey(name) {
   }
   return data?.key || null;
 }
-

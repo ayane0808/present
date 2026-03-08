@@ -1,4 +1,6 @@
 export const RELATION_ICONS = { '恋人': '💕', '友人': '🤝', '父': '👨', '母': '👩', '兄弟・姉妹': '👫', '先輩・上司': '🧑🏻‍💼','同僚': '💼', '子ども': '🧒🏻','祖父母': '👴🏻','夫婦': '💑', 'その他': '✨'};
+// 性別のラベル変換用
+export const GENDER_LABELS = { 0: 'どちらでもない', 1: '男性', 2: '女性' };
 
 // ===== 共通UI関数 =====
 // HTMLのonclickから直接呼ばれるものは window に登録する
@@ -32,7 +34,7 @@ export function showToast(msg, type = 'success') {
 window.showToast = showToast;
 
 
-function formatAge(age) {
+export function formatAge(age) {
   if (!age) return '';
   if (age <= 9) return '9歳以下';
   if (age >= 60) return '60歳以上';
