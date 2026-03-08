@@ -31,7 +31,6 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 
   document.getElementById('home-posts').innerHTML = recentPosts
-      .slice(0, 8)
       .map(renderPostCard)
       .join('');
 });
