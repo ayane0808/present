@@ -43,7 +43,11 @@ window.formatAge = formatAge;
 
 
 // 共通の投稿カード生成
-export function renderPostCard(post) {
+export function renderPostCard(post, options = {}) {
+  // JSの map 関数から呼ばれた時の安全対策（optionsに数字が入るのを防ぐ）
+  const opts = typeof options === 'object' ? options : {};
+  const isMyPost = options.isMyPost === true;
+
   const imgBlock = post.image
     ? `<div class="card-img-wrap"><img class="card-img" src="${post.image}" alt="${post.product_name}" onerror="this.parentElement.style.display='none'"><div class="card-img-overlay"></div></div>`
     : `<div class="card-no-img">🎁</div>`;
@@ -64,6 +68,14 @@ export function renderPostCard(post) {
       : '',
   ].join('');
 
+  // 編集ボタンと削除ボタンを横並びにする
+  const actionHtml = isMyPost
+    ? `<div style="display: flex; gap: 8px; margin-top: 12px; padding-top: 12px; border-top: 1px dashed rgba(255, 107, 138, 0.2);">
+        <button onclick="window.location.href='post.html?edit=${post.id}'" style="flex: 1; padding: 8px; border-radius: 8px; border: 1.5px solid #5bad8f; background: #fff; color: #5bad8f; font-size: 13px; font-weight: 700; cursor: pointer; transition: 0.2s;" onmouseover="this.style.background='#5bad8f'; this.style.color='#fff';" onmouseout="this.style.background='#fff'; this.style.color='#5bad8f';">✏️ 編集する</button>
+        <button onclick="handleDeletePost('${post.id}')" style="flex: 1; padding: 8px; border-radius: 8px; border: 1.5px solid #ff4d4f; background: #fff; color: #ff4d4f; font-size: 13px; font-weight: 700; cursor: pointer; transition: 0.2s;" onmouseover="this.style.background='#ff4d4f'; this.style.color='#fff';" onmouseout="this.style.background='#fff'; this.style.color='#ff4d4f';">🗑 削除する</button>
+       </div>`
+    : '';
+
   return `<div class="post-card">
     ${imgBlock}
     <div class="card-body">
@@ -72,6 +84,7 @@ export function renderPostCard(post) {
       <div class="card-tags">${tags}</div>
       <p class="card-review">"${post.review}"</p>
       ${urlBlock}
+      ${actionHtml}
     </div>
   </div>`;
 }

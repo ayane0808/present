@@ -67,10 +67,25 @@
 
     <div id="app">
       <div class="content-wrap">
-        <div class="account-wrap">
-          <h2 class="section-title">アカウント</h2>
-
-          <div id="account-logged-in" style="display: none">
+        <div id="account-logged-in" style="display: none">
+          <div
+            style="
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+              margin-bottom: 32px;
+            "
+          >
+            <h2 class="section-title" style="margin: 0">マイページ</h2>
+            <button
+              class="btn-logout"
+              onclick="handleLogout()"
+              style="width: auto; padding: 8px 20px; margin: 0; font-size: 13px"
+            >
+              ログアウト
+            </button>
+          </div>
+          <div style="max-width: 480px; margin: 0 auto 40px">
             <div class="profile-card">
               <div class="profile-avatar">👤</div>
               <h2 class="profile-name" id="profile-name"></h2>
@@ -80,103 +95,116 @@
               <div class="profile-field-label">ID</div>
               <div class="profile-field-value" id="profile-id"></div>
             </div>
-            <button class="btn-logout" onclick="handleLogout()">
-              ログアウト
-            </button>
           </div>
 
-          <div id="account-auth">
-            <div class="auth-tabs">
-              <button
-                class="auth-tab active"
-                id="auth-tab-login"
-                onclick="setAuthMode('login')"
-              >
-                ログイン
-              </button>
-              <button
-                class="auth-tab"
-                id="auth-tab-register"
-                onclick="setAuthMode('register')"
-              >
-                新規登録
-              </button>
-            </div>
+          <div class="mypage-section">
             <h3
               class="section-title"
-              id="auth-title"
-              style="font-size: 20px; margin-bottom: 22px"
+              style="
+                font-size: 18px;
+                margin-bottom: 16px;
+                display: flex;
+                align-items: center;
+                gap: 8px;
+              "
+            >
+              💬 自分の投稿
+            </h3>
+            <div id="my-posts" class="posts-grid"></div>
+          </div>
+        </div>
+
+        <div class="account-wrap" id="account-auth">
+          <h2 class="section-title">アカウント</h2>
+          <div class="auth-tabs">
+            <button
+              class="auth-tab active"
+              id="auth-tab-login"
+              onclick="setAuthMode('login')"
             >
               ログイン
-            </h3>
+            </button>
+            <button
+              class="auth-tab"
+              id="auth-tab-register"
+              onclick="setAuthMode('register')"
+            >
+              新規登録
+            </button>
+          </div>
+          <h3
+            class="section-title"
+            id="auth-title"
+            style="font-size: 20px; margin-bottom: 22px"
+          >
+            ログイン
+          </h3>
 
-            <div id="register-fields" style="display: none">
-              <div class="auth-group">
-                <label class="auth-field-label">お名前</label
-                ><input
-                  type="text"
-                  class="input-field"
-                  id="auth-name"
-                  placeholder="山田 太郎"
-                />
-              </div>
-              <div class="auth-group">
-                <label class="auth-field-label">年代</label
-                ><select class="select-field" id="auth-age">
-                  <option value="9">9歳以下</option>
-                  <option value="10">10代</option>
-                  <option value="20">20代</option>
-                  <option value="30">30代</option>
-                  <option value="40">40代</option>
-                  <option value="50">50代</option>
-                  <option value="60">60歳以上</option>
-              </select>
-              </div>
-              <div class="auth-group">
-                <label class="auth-field-label">性別</label
-                ><select class="select-field" id="auth-gender">
-                  <option value="0">どちらでもない</option>
-                  <option value="1">男性</option>
-                  <option value="2">女性</option>
-                 </select>
-              </div>
-            </div>
-
+          <div id="register-fields" style="display: none">
             <div class="auth-group">
-              <label class="auth-field-label">ID</label
+              <label class="auth-field-label">お名前</label
               ><input
                 type="text"
                 class="input-field"
-                id="auth-id"
-                placeholder="user_id"
+                id="auth-name"
+                placeholder="山田 太郎"
               />
             </div>
-            <div class="auth-group" style="margin-bottom: 20px">
-              <label class="auth-field-label">パスワード</label
-              ><input
-                type="password"
-                class="input-field"
-                id="auth-password"
-                placeholder="••••••••"
-              />
+            <div class="auth-group">
+              <label class="auth-field-label">年代</label
+              ><select class="select-field" id="auth-age">
+                <option value="9">9歳以下</option>
+                <option value="10">10代</option>
+                <option value="20">20代</option>
+                <option value="30">30代</option>
+                <option value="40">40代</option>
+                <option value="50">50代</option>
+                <option value="60">60歳以上</option>
+              </select>
             </div>
-
-            <p class="auth-demo" id="auth-demo-hint">
-              🔑 デモ: ID「demo」 / パスワード「demo」
-            </p>
-            <button
-              class="btn-primary full"
-              id="auth-submit-btn"
-              onclick="handleAuth()"
-            >
-              ログイン
-            </button>
+            <div class="auth-group">
+              <label class="auth-field-label">性別</label
+              ><select class="select-field" id="auth-gender">
+                <option value="0">どちらでもない</option>
+                <option value="1">男性</option>
+                <option value="2">女性</option>
+              </select>
+            </div>
           </div>
+
+          <div class="auth-group">
+            <label class="auth-field-label">ID</label
+            ><input
+              type="text"
+              class="input-field"
+              id="auth-id"
+              placeholder="user_id"
+            />
+          </div>
+          <div class="auth-group" style="margin-bottom: 20px">
+            <label class="auth-field-label">パスワード</label
+            ><input
+              type="password"
+              class="input-field"
+              id="auth-password"
+              placeholder="••••••••"
+            />
+          </div>
+
+          <p class="auth-demo" id="auth-demo-hint">
+            🔑 デモ: ID「demo」 / パスワード「demo」
+          </p>
+          <button
+            class="btn-primary full"
+            id="auth-submit-btn"
+            onclick="handleAuth()"
+          >
+            ログイン
+          </button>
         </div>
       </div>
     </div>
 
-    <script src="../js/utils.js"></script>
     <script type="module" src="../js/auth.js"></script>
   </body>
 </html>

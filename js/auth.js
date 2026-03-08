@@ -1,6 +1,5 @@
-import { signIn, signOut, signUp, getCurrentUser } from './supabase.js';
-
-import { showToast } from './utils.js';
+import { signIn, signOut, signUp, getCurrentUser, getPosts, deletePost } from './supabase.js';
+import { showToast, renderPostCard } from './utils.js';
 
 let authMode = 'login';
 
@@ -49,7 +48,19 @@ window.handleLogout = function() {
   renderAccount();
 }
 
-function renderAccount() {
+window.handleDeletePost = async function(postId) {
+  if (!confirm('この投稿を削除してもよろしいですか？\n※この操作は取り消せません。')) return;
+
+  const success = await deletePost(postId);
+  if (success) {
+    showToast('投稿を削除しました 🗑️');
+    renderAccount(); // 画面を再読み込みして投稿を消す
+  } else {
+    showToast('削除に失敗しました', 'error');
+  }
+}
+
+async function renderAccount() {
   const user = getCurrentUser();
   const li = document.getElementById('account-logged-in');
   const au = document.getElementById('account-auth');
@@ -62,6 +73,28 @@ function renderAccount() {
     document.getElementById('profile-sub').textContent =
         formatAge(user.age) + ' · ' + (genderLabel[user.gender] || ''); // ← ifの中に移動
     document.getElementById('profile-id').textContent = '@' + user.id;
+
+    // --- マイページ（自分の投稿）の表示処理 ---
+    const myPostsContainer = document.getElementById('my-posts');
+    if (myPostsContainer) {
+      myPostsContainer.innerHTML = '<p style="font-size: 14px; color: var(--sumi2);">読み込み中...</p>';
+      
+      const allPosts = await getPosts();
+      // user_id または author が自分のIDと一致するものを抽出
+      const myPosts = allPosts.filter(p => p.user_id === user.id || p.author === user.id);
+
+      if (myPosts.length > 0) {
+        myPostsContainer.innerHTML = myPosts.map(p => renderPostCard(p, { isMyPost: true })).join('');
+      } else {
+        myPostsContainer.innerHTML = `
+          <div class="empty-state" style="grid-column: 1 / -1;">
+            <div class="es-icon">🌸</div>
+            <div class="es-title">まだ投稿がありません</div>
+            <div class="es-sub">最初のプレゼント体験をシェアしてみましょう！</div>
+          </div>
+        `;
+      }
+    }
   } else {
     li.style.display = 'none'; au.style.display = 'block';
   }
