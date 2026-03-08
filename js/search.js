@@ -297,7 +297,7 @@ function buildDbSectionFromAi(aiRecommendations, summary) {
     return `- ${name}${pricePart}がおすすめです。\n  理由: ${reason}\n  口コミ: ${shortReview}${reviewSuffix}${urlPart}`;
   });
 
-  return `【みんなのもらってうれしいギフト】\n- 抽出した条件:\n  - ${summary}\n${lines.join('\n')}`;
+  return `【みんなのもらってうれしいギフト】\n- 抽出した条件:\n  - ${summary}\n\n${lines.join('\n\n')}`;
 }
 
 function buildDbSectionForUser(posts, userMsg, conditions) {
@@ -328,7 +328,7 @@ function buildDbSectionForUser(posts, userMsg, conditions) {
   });
 
   const summary = buildConditionSummary(conditions || {});
-  return `【みんなのもらってうれしいギフト】\n- 抽出した条件:\n  - ${summary}\n${lines.join('\n')}`;
+  return `【みんなのもらってうれしいギフト】\n- 抽出した条件:\n  - ${summary}\n\n${lines.join('\n\n')}`;
 }
 
 function applyExtractedConditionsToUi(conditions) {
