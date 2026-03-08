@@ -38,14 +38,15 @@ async function getAiApiKey() {
 
 window.setSearchMode = function(mode) {
   searchMode = mode;
-  document.getElementById('search-button-mode').style.display =
-    mode === 'button' ? 'block' : 'none';
-  document.getElementById('search-ai-mode').style.display =
-    mode === 'ai' ? 'block' : 'none';
-  document
-    .getElementById('tab-button')
-    .classList.toggle('active', mode === 'button');
+  const buttonWrapper = document.getElementById('search-button-mode-wrapper');
+  const aiMode = document.getElementById('search-ai-mode');
+
+  buttonWrapper.style.display = mode === 'button' ? 'grid' : 'none';
+  aiMode.style.display = mode === 'ai' ? 'flex' : 'none';
+
+  document.getElementById('tab-button').classList.toggle('active', mode === 'button');
   document.getElementById('tab-ai').classList.toggle('active', mode === 'ai');
+
   if (mode === 'ai') renderChat();
 }
 
