@@ -9,6 +9,7 @@
     <title>探す - GiftFinder</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&family=Zen+Maru+Gothic:wght@700;900&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nouislider@15.7.0/dist/nouislider.min.css">
     <link rel="stylesheet" href="../css/base.css" />
     <link rel="stylesheet" href="../css/layout.css" />
     <link rel="stylesheet" href="../css/components.css" />
@@ -123,6 +124,16 @@
                 <div id="chips-category" class="chips-wrap"></div>
               </div>
 
+              <div class="filter-section">
+                <div class="filter-label" style="display: flex; justify-content: space-between;">
+                  <span>💰 予算</span>
+                  <span id="price-value" style="color: var(--sakura); font-weight: 900;">¥0 - ¥50,000+</span>
+                </div>
+                <div style="padding: 0 10px 10px;">
+                  <div id="price-slider"></div>
+                </div>
+              </div>
+
               <button class="btn-primary full" onclick="handleSearch()">
                 🔍 この条件で探す
               </button>
@@ -163,7 +174,7 @@
       </div>
     </div>
 
-    <script src="../js/supabase.js"></script>
-    <script src="../js/search.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/nouislider@15.7.0/dist/nouislider.min.js"></script>
+    <script type="module" src="../js/search.js"></script>
   </body>
 </html>

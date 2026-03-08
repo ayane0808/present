@@ -1,3 +1,10 @@
+import { getPosts, getCategories, getScenes, getRelations } from './supabase.js';
+import { showToast, renderPostCard, RELATION_ICONS } from './utils.js';
+
+let CATEGORIES = [];
+let SCENES = [];
+let RELATIONS = [];
+
 let searchConditions = {
   age: '',
   gender: '',
@@ -29,7 +36,7 @@ async function getAiApiKey() {
   return key;
 }
 
-function setSearchMode(mode) {
+window.setSearchMode = function(mode) {
   searchMode = mode;
   document.getElementById('search-button-mode').style.display =
     mode === 'button' ? 'block' : 'none';
@@ -69,11 +76,22 @@ window.toggleSearchCondition = function (key, val) {
 };
 
 // 検索実行
-window.handleSearch = function () {
+window.handleSearch = async function () {
   searchConditions.age = document.getElementById('filter-age').value;
   searchConditions.gender = document.getElementById('filter-gender').value;
 
-  const allPosts = getPosts();
+  // スライダーの価格を取得
+  const slider = document.getElementById('price-slider');
+  let minPrice = 0;
+  let maxPrice = 50000;
+  if (slider && slider.noUiSlider) {
+    const values = slider.noUiSlider.get();
+    minPrice = Math.round(values[0]);
+    maxPrice = Math.round(values[1]);
+  }
+  // DBから投稿をすべて取得
+  const allPosts = await getPosts();
+  // 条件に合うものだけを残す
   const filtered = allPosts.filter((p) => {
     if (searchConditions.age && p.age !== searchConditions.age) return false;
     if (
@@ -89,6 +107,11 @@ window.handleSearch = function () {
       return false;
     if (searchConditions.category && p.category !== searchConditions.category)
       return false;
+    // 価格の絞り込み
+    const postPrice = p.price ? Number(p.price) : 0;
+    if (postPrice < minPrice) return false;
+    // maxPriceが50000の場合は「5万円以上」も含める仕様にする
+    if (maxPrice < 50000 && postPrice > maxPrice) return false;
     return true;
   });
 
@@ -193,4 +216,53 @@ window.handleChatSend = async function () {
   }
 };
 
-document.addEventListener('DOMContentLoaded', refreshSearchChips);
+document.addEventListener('DOMContentLoaded', async () => {
+  try {
+    // 1. DBから一気に3つのデータを取得する
+    const [catData, sceneData, relData] = await Promise.all([
+      getCategories(),
+      getScenes(),
+      getRelations()
+    ]);
+
+    // ログ用
+    console.log("カテゴリのデータ:", catData);
+    console.log("シーンのデータ:", sceneData);
+    console.log("関係性のデータ:", relData);
+
+    // 2. 取得したデータから「名前」だけを取り出して配列にする
+    CATEGORIES = catData.map(d => d.category_name);
+    SCENES = sceneData.map(d => d.scene_name);
+    RELATIONS = relData.map(d => d.relation_name);
+
+    // 3. データが入った状態でチップを描画
+    refreshSearchChips();
+
+  } catch (error) {
+    console.error("データの取得に失敗しました:", error);
+    showToast("データの読み込みに失敗しました", "error");
+  }
+
+  // noUiSliderの初期化
+  const slider = document.getElementById('price-slider');
+  if (slider) {
+    noUiSlider.create(slider, {
+      start: [0, 50000],
+      connect: true,
+      step: 1000, // 1000円刻み
+      range: {
+        'min': 0,
+        'max': 50000
+      }
+    });
+
+    const priceValue = document.getElementById('price-value');
+    
+    slider.noUiSlider.on('update', function (values, handle) {
+      const min = Math.round(values[0]).toLocaleString();
+      const max = Math.round(values[1]);
+      const maxStr = max >= 50000 ? max.toLocaleString() + '以上' : max.toLocaleString();
+      priceValue.innerText = `¥${min} - ¥${maxStr}`;
+    });
+  }
+});

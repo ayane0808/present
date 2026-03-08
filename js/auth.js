@@ -1,5 +1,7 @@
 import { signIn, signOut, signUp, getCurrentUser } from './supabase.js';
 
+import { showToast } from './utils.js';
+
 let authMode = 'login';
 
 window.setAuthMode = function(mode) {
@@ -24,7 +26,6 @@ window.handleAuth = async function() {
     } else {
       showToast('IDまたはパスワードが違います', 'error');
     }
-
   } else {
     const name = document.getElementById('auth-name').value;
     const age = document.getElementById('auth-age').value;
