@@ -1,3 +1,8 @@
+let CATEGORIES = [];
+let SCENES = [];
+let RELATIONS = [];
+let RELATION_ICONS = { '恋人': '💕', '友人': '🤝', '父': '👨', '母': '👩', '兄弟・姉妹': '👫', '先輩・上司': '🧑🏻‍💼','同僚': '💼', '子ども': '🧒🏻','祖父母': '👴🏻', 'その他': '✨'};
+
 let searchConditions = {
   age: '',
   gender: '',
@@ -178,4 +183,53 @@ window.handleChatSend = async function () {
   }
 };
 
-document.addEventListener('DOMContentLoaded', refreshSearchChips);
+document.addEventListener('DOMContentLoaded', async () => {
+  try {
+    // 1. DBから一気に3つのデータを取得する
+    const [catData, sceneData, relData] = await Promise.all([
+      getCategories(),
+      getScenes(),
+      getRelations()
+    ]);
+
+    // ログ用
+    console.log("カテゴリのデータ:", catData);
+    console.log("シーンのデータ:", sceneData);
+    console.log("関係性のデータ:", relData);
+
+    // 2. 取得したデータから「名前」だけを取り出して配列にする
+    CATEGORIES = catData.map(d => d.category_name);
+    SCENES = sceneData.map(d => d.scenes_name);
+    RELATIONS = relData.map(d => d.relation_name);
+
+    // 3. データが入った状態でチップを描画
+    refreshSearchChips();
+
+  } catch (error) {
+    console.error("データの取得に失敗しました:", error);
+    showToast("データの読み込みに失敗しました", "error");
+  }
+
+  // noUiSliderの初期化
+  const slider = document.getElementById('price-slider');
+  if (slider) {
+    noUiSlider.create(slider, {
+      start: [0, 50000],
+      connect: true,
+      step: 1000, // 1000円刻み
+      range: {
+        'min': 0,
+        'max': 50000
+      }
+    });
+
+    const priceValue = document.getElementById('price-value');
+    
+    slider.noUiSlider.on('update', function (values, handle) {
+      const min = Math.round(values[0]).toLocaleString();
+      const max = Math.round(values[1]);
+      const maxStr = max >= 50000 ? max.toLocaleString() + '以上' : max.toLocaleString();
+      priceValue.innerText = `¥${min} - ¥${maxStr}`;
+    });
+  }
+});

@@ -25,7 +25,7 @@ window.togglePostChip = function (key, val, containerId) {
 };
 
 window.handlePost = function () {
-  const user = getUser();
+  const user = getUsers();
   if (!user) {
     showToast('投稿するにはログインが必要です', 'error');
     return;
@@ -34,6 +34,7 @@ window.handlePost = function () {
   const productName = document.getElementById('post-product').value.trim();
   const review = document.getElementById('post-review').value.trim();
   const url = document.getElementById('post-url').value.trim();
+  const price = document.getElementById('post-price').value.trim();
 
   if (!productName || !review) {
     showToast('商品名とレビューは必須です', 'error');
@@ -48,9 +49,9 @@ window.handlePost = function () {
     category: newPost.category,
     scene: newPost.scene,
     relation: newPost.relation,
+    price: price ? Number(price) : null,
     age: user.age,
     gender: user.gender,
-    likes: 0,
     author: user.id,
   };
 
@@ -62,7 +63,7 @@ window.handlePost = function () {
 };
 
 document.addEventListener('DOMContentLoaded', () => {
-  const user = getUser();
+  const user = getUsers();
   document.getElementById('post-login-warn').style.display = user
     ? 'none'
     : 'block';
