@@ -7,9 +7,33 @@ export const supab = createClient(supabaseUrl, supabaseAnonKey);
 
 // postsを取得
 export async function getPosts() {
-  const { data, error } = await supab.from('posts').select('*');
+  // 関連テーブルから必要な「名前」や「年齢・性別」も一緒に取得する
+  const { data, error } = await supab.from('posts').select(`
+    *,
+    categories ( category_name ),
+    scenes ( scene_name ),
+    relations ( relation_name ),
+    users ( age, gender )
+  `);
   if (error) { console.error(error); return []; }
-  return data;
+  // 年代と性別のラベル変換用
+  const formatAge = (age) => {
+    if (!age) return '';
+    if (age <= 9) return '9歳以下';
+    if (age >= 60) return '60代以上';
+    return age + '代';
+  };
+  const genderLabel = { 0: 'どちらでもない', 1: '男性', 2: '女性' };
+
+  // フロントエンドのUIや検索ロジックで使うプロパティ（category, scene, relation, age, gender）に割り当てて返す
+  return data.map(post => ({
+    ...post,
+    category: post.categories?.category_name || null,
+    scene: post.scenes?.scene_name || null,
+    relation: post.relations?.relation_name || null,
+    age: post.users ? formatAge(post.users.age) : null,
+    gender: post.users ? genderLabel[post.users.gender] || null : null
+  }));
 }
 
 // postを1件追加
@@ -98,4 +122,3 @@ export async function getApiKey(name) {
   }
   return data?.key || null;
 }
-
