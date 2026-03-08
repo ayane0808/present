@@ -23,3 +23,23 @@ document.addEventListener('DOMContentLoaded', async () => {
     .map(renderPostCard)
     .join('');
 });
+
+function renderPostCard(post) {
+  const imgBlock = post.image
+      ? `<div class="card-img-wrap"><img class="card-img" src="${post.image}" alt="${post.product_name}"></div>`
+      : `<div class="card-no-img">🎁</div>`;
+
+  const urlBlock = post.url
+      ? `<a href="${post.url}" target="_blank" rel="noopener noreferrer" class="card-link">🔗 商品ページを見る</a>`
+      : '';
+
+  return `<div class="post-card">
+    ${imgBlock}
+    <div class="card-body">
+      <div class="card-product">🎁 ${post.product_name}</div>
+      <p class="card-review">"${post.review}"</p>
+      <div class="card-price">¥${post.price?.toLocaleString() ?? '—'}</div>
+      ${urlBlock}
+    </div>
+  </div>`;
+}
