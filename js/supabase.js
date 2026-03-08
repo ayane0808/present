@@ -54,3 +54,9 @@ export async function getRelations() {
   }
   return data;
 }
+
+
+export async function getCurrentUser() {
+  const { data: { user } } = await supab.auth.getUser();
+  return user; // ログインしてなければnullが返る
+}
