@@ -6,6 +6,19 @@ let categoryNameToId = {};
 let sceneNameToId = {};
 let relationNameToId = {};
 
+function notify(message, type = 'success') {
+  if (typeof showToast === 'function') {
+    showToast(message, type);
+    return;
+  }
+  console[type === 'error' ? 'error' : 'log'](message);
+}
+
+function resolvePostUserId(user) {
+  if (!user?.id) return null;
+  return user.id;
+}
+
 function getStoredUser() {
   if (typeof getUser === 'function') {
     return getUser();
@@ -133,7 +146,7 @@ window.togglePostChip = function (key, val, containerId) {
 window.handlePost = async function () {
   const user = await getPageUser();
   if (!user) {
-    showToast('投稿するにはログインが必要です', 'error');
+    notify('投稿するにはログインが必要です', 'error');
     return;
   }
 
@@ -142,7 +155,13 @@ window.handlePost = async function () {
   const url = document.getElementById('post-url').value.trim();
 
   if (!productName || !review) {
-    showToast('商品名とレビューは必須です', 'error');
+    notify('商品名とレビューは必須です', 'error');
+    return;
+  }
+
+  const postUserId = resolvePostUserId(user);
+  if (!postUserId) {
+    notify('ユーザー情報の取得に失敗しました', 'error');
     return;
   }
 
@@ -153,16 +172,21 @@ window.handlePost = async function () {
     category_id: categoryNameToId[newPost.category] ?? null,
     scene_id: sceneNameToId[newPost.scene] ?? null,
     relation_id: relationNameToId[newPost.relation] ?? null,
-    user_id: user.id,
+    user_id: postUserId,
   };
 
-  const { addPost } = await import('./supabase.js');
-  const inserted = await addPost(finalPost); // supabase.jsの関数で保存
-  if (!inserted) {
-    showToast('投稿に失敗しました。入力内容をご確認ください', 'error');
+  const { supab } = await import('./supabase.js');
+  const { error } = await supab
+    .from('posts')
+    .insert([finalPost])
+    .select('id')
+    .single();
+
+  if (error) {
+    notify(`投稿に失敗しました: ${error.message}`, 'error');
     return;
   }
-  showToast('投稿しました！🌸 ありがとうございます！');
+  notify('投稿しました！🌸 ありがとうございます！');
   setTimeout(() => {
     window.location.href = 'index.html';
   }, 1500);
