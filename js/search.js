@@ -36,6 +36,111 @@ async function getAiApiKey() {
   return key;
 }
 
+function toName(row, keys) {
+  if (!row) return '';
+  for (const key of keys) {
+    if (typeof row[key] === 'string' && row[key].trim()) return row[key].trim();
+  }
+  return '';
+}
+
+function extractBudgetRange(text) {
+  const matches = [...text.matchAll(/(\d[\d,]*)\s*円/g)].map((m) =>
+    Number(String(m[1]).replace(/,/g, '')),
+  );
+  if (!matches.length) return null;
+
+  if (matches.length >= 2) {
+    const sorted = matches.slice(0, 2).sort((a, b) => a - b);
+    return { min: sorted[0], max: sorted[1] };
+  }
+
+  const value = matches[0];
+  if (/以上|から/.test(text)) return { min: value, max: Infinity };
+  if (/以下|以内|まで/.test(text)) return { min: 0, max: value };
+  return { min: 0, max: value };
+}
+
+function normalizePostsForAi(posts, categoryMap, sceneMap, relationMap) {
+  return (posts || []).map((post) => ({
+    productName: post.product_name ?? post.productName ?? '商品名不明',
+    review: post.review ?? '',
+    price: post.price == null || post.price === '' ? null : Number(post.price),
+    category: post.category ?? categoryMap.get(post.category_id) ?? '',
+    scene: post.scene ?? sceneMap.get(post.scene_id) ?? '',
+    relation: post.relation ?? relationMap.get(post.relation_id) ?? '',
+    createdAt: post.created_at ?? '',
+  }));
+}
+
+function rankPostsForPrompt(posts, userMsg) {
+  const budget = extractBudgetRange(userMsg);
+  const text = userMsg.toLowerCase();
+
+  const scored = posts.map((post) => {
+    let score = 0;
+
+    if (post.category && text.includes(post.category.toLowerCase())) score += 3;
+    if (post.scene && text.includes(post.scene.toLowerCase())) score += 3;
+    if (post.relation && text.includes(post.relation.toLowerCase())) score += 3;
+    if (post.productName && text.includes(post.productName.toLowerCase())) score += 2;
+
+    if (budget && post.price != null) {
+      const inRange = post.price >= budget.min && post.price <= budget.max;
+      score += inRange ? 4 : -2;
+    }
+
+    return { post, score };
+  });
+
+  scored.sort((a, b) => {
+    if (b.score !== a.score) return b.score - a.score;
+    return String(b.post.createdAt).localeCompare(String(a.post.createdAt));
+  });
+
+  const top = scored.slice(0, 5).map((v) => v.post);
+  return top.length ? top : posts.slice(0, 5);
+}
+
+function buildPostContext(posts) {
+  if (!posts.length) return '参考にできる投稿データは見つかりませんでした。';
+
+  return posts
+    .map((post, idx) => {
+      const price = post.price == null || Number.isNaN(post.price)
+        ? '価格不明'
+        : `¥${post.price.toLocaleString()}`;
+      return `${idx + 1}. 商品: ${post.productName} / 価格: ${price} / カテゴリ: ${post.category || '不明'} / シーン: ${post.scene || '不明'} / 関係: ${post.relation || '不明'} / 口コミ: ${post.review || 'なし'}`;
+    })
+    .join('\n');
+}
+
+function buildDbSectionForUser(posts, userMsg) {
+  if (!posts.length) return '【みんなのもらって嬉しいギフト】\n- 相談内容に近い投稿データが見つかりませんでした。';
+
+  const text = userMsg.toLowerCase();
+  const budget = extractBudgetRange(userMsg);
+
+  const lines = posts.slice(0, 3).map((post) => {
+    const hasPrice = post.price != null && !Number.isNaN(post.price);
+    const pricePart = hasPrice ? `（¥${post.price.toLocaleString()}）` : '';
+
+    const reasons = [];
+    if (post.scene && text.includes(post.scene.toLowerCase())) reasons.push(`シーン「${post.scene}」に一致`);
+    if (post.relation && text.includes(post.relation.toLowerCase())) reasons.push(`関係「${post.relation}」に一致`);
+    if (post.category && text.includes(post.category.toLowerCase())) reasons.push(`カテゴリ「${post.category}」に一致`);
+    if (budget && post.price != null && post.price >= budget.min && post.price <= budget.max) {
+      reasons.push('予算帯に近い');
+    }
+
+    const shortReview = (post.review || '口コミなし').slice(0, 42);
+    const reasonText = reasons.length ? reasons.join('・') : '口コミ評価が参考になる';
+    return `- ${post.productName}${pricePart}がおすすめです。理由: ${reasonText}。口コミ: ${shortReview}${post.review && post.review.length > 42 ? '...' : ''}`;
+  });
+
+  return `【みんなのもらって嬉しいギフト】\n${lines.join('\n')}`;
+}
+
 window.setSearchMode = function(mode) {
   searchMode = mode;
   document.getElementById('search-button-mode').style.display =
@@ -167,7 +272,39 @@ window.handleChatSend = async function () {
   box.scrollTop = box.scrollHeight;
 
   try {
-    const apiKey = await getAiApiKey();
+    const [apiKey, posts, categories, scenes, relations] = await Promise.all([
+      getAiApiKey(),
+      getPosts(),
+      getCategories(),
+      getScenes(),
+      getRelations(),
+    ]);
+
+    const categoryMap = new Map(
+      (categories || [])
+        .map((row) => [row?.id, toName(row, ['category_name', 'name', 'label'])])
+        .filter(([id, name]) => id != null && !!name),
+    );
+    const sceneMap = new Map(
+      (scenes || [])
+        .map((row) => [row?.id, toName(row, ['scene_name', 'name', 'label'])])
+        .filter(([id, name]) => id != null && !!name),
+    );
+    const relationMap = new Map(
+      (relations || [])
+        .map((row) => [row?.id, toName(row, ['relation_name', 'name', 'label'])])
+        .filter(([id, name]) => id != null && !!name),
+    );
+
+    const normalizedPosts = normalizePostsForAi(
+      posts,
+      categoryMap,
+      sceneMap,
+      relationMap,
+    );
+    const rankedPosts = rankPostsForPrompt(normalizedPosts, userMsg);
+    const postContext = buildPostContext(rankedPosts);
+
     const response = await fetch(
       `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent?key=${apiKey}`,
       {
@@ -180,7 +317,7 @@ window.handleChatSend = async function () {
             {
               parts: [
                 {
-                  text: `あなたはプレゼント選びのアドバイザーです。ユーザーの要望に基づいて、適切なプレゼントのアドバイスを日本語で行ってください。\n\nユーザーからの相談：「${userMsg}」\n\nアドバイスは簡潔に（100字程度）、具体的なプレゼント提案を含めてください。`,
+                  text: `あなたはプレゼント選びのアドバイザーです。ユーザーの要望に基づいて、適切なプレゼントのアドバイスを日本語で行ってください。\n\n以下はこのサービス内の実際の投稿データです。できるだけこの情報を優先して提案してください。\n${postContext}\n\nユーザーからの相談：「${userMsg}」\n\n出力は「AIからの提案」だけを2〜3個、箇条書きで返してください。先頭に見出しや前置きは不要です。`,
                 },
               ],
             },
@@ -198,9 +335,12 @@ window.handleChatSend = async function () {
       result.candidates?.[0]?.content?.parts?.[0]?.text ||
       '申し訳ありません。返答を生成できませんでした。';
 
+    const dbSection = buildDbSectionForUser(rankedPosts, userMsg);
+    const finalText = `${dbSection}\n\n【AIからの提案】\n${aiText}`;
+
     chatMessages.push({
       role: 'ai',
-      text: aiText,
+      text: finalText,
     });
   } catch (error) {
     console.error('Chat API error:', error);
